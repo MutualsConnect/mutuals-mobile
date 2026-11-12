@@ -31,7 +31,7 @@ class AppShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.dynamic_feed_outlined),
             selectedIcon: Icon(Icons.dynamic_feed_rounded),
-            label: 'Novedades',
+            label: 'Feed',
           ),
           NavigationDestination(
             icon: Icon(Icons.search_rounded),

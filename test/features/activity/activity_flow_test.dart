@@ -65,7 +65,7 @@ Future<void> _openFeed(WidgetTester tester, FakeActivityRepository repo) async {
     ),
   );
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Novedades'));
+  await tester.tap(find.text('Feed'));
   await tester.pumpAndSettle();
 }
 
