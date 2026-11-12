@@ -4,7 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/auth/data/models/user_profile.dart';
+import 'package:mutuals/features/social/data/social_repository.dart';
+import 'package:mutuals/features/streaks/data/streak_repository.dart';
 import 'package:mutuals/main.dart';
+
+import '../../support/fakes.dart';
 
 const _ana = UserProfile(
   id: 1,
@@ -26,7 +30,10 @@ class _FakeAuthRepository implements AuthRepository {
   Future<UserProfile?> restoreSession() async => saved;
 
   @override
-  Future<UserProfile> login({required String email, required String password}) async {
+  Future<UserProfile> login({
+    required String email,
+    required String password,
+  }) async {
     if (loginError != null) throw loginError!;
     return _ana;
   }
@@ -37,8 +44,7 @@ class _FakeAuthRepository implements AuthRepository {
     required String username,
     required String displayName,
     required String password,
-  }) async =>
-      _ana;
+  }) async => _ana;
 
   @override
   Future<void> logout() async => loggedOut = true;
@@ -50,7 +56,11 @@ class _FakeAuthRepository implements AuthRepository {
 Future<void> _pumpApp(WidgetTester tester, _FakeAuthRepository repo) async {
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [authRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        authRepositoryProvider.overrideWithValue(repo),
+        socialRepositoryProvider.overrideWithValue(FakeSocialRepository()),
+        streakRepositoryProvider.overrideWithValue(FakeStreakRepository()),
+      ],
       child: const MutualsApp(),
     ),
   );
@@ -85,11 +95,16 @@ void main() {
     expect(find.textContaining('Hola, Ana'), findsOneWidget);
   });
 
-  testWidgets('un login incorrecto muestra el mensaje del servidor', (tester) async {
+  testWidgets('un login incorrecto muestra el mensaje del servidor', (
+    tester,
+  ) async {
     await _pumpApp(
       tester,
       _FakeAuthRepository(
-        loginError: const ApiException(message: 'Credenciales inválidas', statusCode: 401),
+        loginError: const ApiException(
+          message: 'Credenciales inválidas',
+          statusCode: 401,
+        ),
       ),
     );
     await tester.enterText(find.byType(TextFormField).at(0), 'ana@utec.edu.pe');

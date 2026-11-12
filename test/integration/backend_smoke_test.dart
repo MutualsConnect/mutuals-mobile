@@ -9,6 +9,8 @@ import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/storage/token_storage.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
+import 'package:mutuals/features/streaks/data/models/streak_models.dart';
+import 'package:mutuals/features/streaks/data/streak_repository.dart';
 
 void main() {
   final enabled = Platform.environment.containsKey('MUTUALS_E2E');
@@ -142,6 +144,73 @@ void main() {
           expect((await ana.profile(luisId)).followedByMe, isFalse);
         },
       );
+    },
+  );
+
+  group(
+    'rachas en el backend real',
+    skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar',
+    () {
+      Future<(SocialRepository, StreakRepository, int)> newUser(
+        String tag,
+      ) async {
+        final tokens = InMemoryTokenStorage();
+        final dio = createApiClient(
+          tokens: tokens,
+          onSessionExpired: () {},
+          baseUrl: 'http://localhost:8080/api/v1',
+        );
+        final id = DateTime.now().microsecondsSinceEpoch;
+        final user = await AuthRepository(dio, tokens).register(
+          email: '$tag$id@example.com',
+          username: '$tag$id',
+          displayName: 'User $tag',
+          password: 'Prueba!2026x',
+        );
+        return (SocialRepository(dio), StreakRepository(dio), user.id);
+      }
+
+      test('invitar, aceptar y ver la racha activa', () async {
+        final (anaSocial, anaStreaks, anaId) = await newUser('rana');
+        final (luisSocial, luisStreaks, luisId) = await newUser('rluis');
+        await anaSocial.follow(luisId);
+        await luisSocial.follow(anaId);
+
+        final invitation = await anaStreaks.invite(luisId);
+        expect(invitation.status, InvitationStatus.pending);
+        expect(
+          (await anaStreaks.invitations(InvitationBox.sent)).single.id,
+          invitation.id,
+        );
+
+        final received = await luisStreaks.invitations(InvitationBox.received);
+        expect(received.single.inviter.id, anaId);
+
+        final accepted = await luisStreaks.respond(
+          received.single.id,
+          accept: true,
+        );
+        expect(accepted.status, InvitationStatus.accepted);
+
+        final card = (await anaSocial.mutuals()).single;
+        expect(card.streak, isNotNull);
+
+        final detail = await anaStreaks.detail(card.streak!.id);
+        expect(detail.isActive, isTrue);
+        expect(detail.friend.id, luisId);
+
+        final history = await anaStreaks.history();
+        expect(history.single.streaks.single.id, detail.id);
+      });
+
+      test('no se puede invitar a quien no es mutual', () async {
+        final (_, anaStreaks, _) = await newUser('sana');
+        final (_, _, luisId) = await newUser('sluis');
+        await expectLater(
+          anaStreaks.invite(luisId),
+          throwsA(isA<ApiException>()),
+        );
+      });
     },
   );
 }
