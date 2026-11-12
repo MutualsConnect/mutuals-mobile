@@ -8,6 +8,7 @@ import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/social/data/models/social_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
+import 'package:mutuals/features/economy/data/economy_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
@@ -76,6 +77,7 @@ Future<void> _pump(
         notificationRepositoryProvider.overrideWithValue(
           FakeNotificationRepository(),
         ),
+        economyRepositoryProvider.overrideWithValue(FakeEconomyRepository()),
         if (location != null)
           locationServiceProvider.overrideWithValue(location),
       ],

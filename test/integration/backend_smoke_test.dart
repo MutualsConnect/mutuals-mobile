@@ -8,6 +8,8 @@ import 'package:mutuals/core/network/api_client.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/storage/token_storage.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
+import 'package:mutuals/features/economy/data/economy_repository.dart';
+import 'package:mutuals/features/economy/data/models/economy_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
@@ -405,6 +407,102 @@ void main() {
 
         await bNotes.markAllRead();
         expect((await bNotes.unreadCount()).total, 0);
+      });
+    },
+  );
+
+  group(
+    'economía en el backend real',
+    skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar',
+    () {
+      /// Las gemas se ganan con semanas de racha; para probar le damos gemas a mano
+      /// en la base de datos local (contenedor de docker-compose).
+      Future<void> grantGems(int userId, int gems) async {
+        final result = await Process.run('docker', [
+          'exec',
+          'mutuals-backend-db-1',
+          'psql',
+          '-U',
+          'mutuals',
+          '-d',
+          'mutuals',
+          '-c',
+          'update users set gems = $gems where id = $userId',
+        ]);
+        expect(result.exitCode, 0, reason: '${result.stderr}');
+      }
+
+      Future<(EconomyRepository, SocialRepository, int)> user(
+        String name,
+      ) async {
+        final tokens = InMemoryTokenStorage();
+        final dio = createApiClient(
+          tokens: tokens,
+          onSessionExpired: () {},
+          baseUrl: 'http://localhost:8080/api/v1',
+        );
+        final id = DateTime.now().microsecondsSinceEpoch;
+        final u = await AuthRepository(dio, tokens).register(
+          email: '$name$id@example.com',
+          username: '$name$id',
+          displayName: 'User $name',
+          password: 'Prueba!2026x',
+        );
+        return (EconomyRepository(dio), SocialRepository(dio), u.id);
+      }
+
+      test('una cuenta nueva empieza sin gemas ni escudos', () async {
+        final (economy, _, _) = await user('w0');
+        final wallet = await economy.wallet();
+        expect(wallet.gems, 0);
+        expect(wallet.shields, 0);
+        expect(wallet.shieldPriceGems, greaterThan(0));
+        expect((await economy.transactions()).content, isEmpty);
+      });
+
+      test('comprar escudos descuenta gemas y queda en el historial', () async {
+        final (economy, _, id) = await user('w1');
+        final price = (await economy.wallet()).shieldPriceGems;
+        await grantGems(id, price * 3);
+
+        final after = await economy.purchaseShields(2);
+        expect(after.shields, 2);
+        expect(after.gems, price);
+
+        final history = (await economy.transactions()).content;
+        expect(
+          history.any(
+            (t) => t.type == WalletTransactionType.spend && t.amount < 0,
+          ),
+          isTrue,
+        );
+      });
+
+      test('sin gemas suficientes la compra se rechaza', () async {
+        final (economy, _, _) = await user('w2');
+        await expectLater(
+          economy.purchaseShields(1),
+          throwsA(isA<ApiException>()),
+        );
+      });
+
+      test('regalar un escudo a un mutual', () async {
+        final (aEconomy, aSocial, aId) = await user('w3a');
+        final (bEconomy, bSocial, bId) = await user('w3b');
+        final price = (await aEconomy.wallet()).shieldPriceGems;
+        await grantGems(aId, price);
+        await aEconomy.purchaseShields(1);
+        await aSocial.follow(bId);
+        await bSocial.follow(aId);
+
+        final after = await aEconomy.giftShield(bId);
+        expect(after.shields, 0);
+        expect((await bEconomy.wallet()).shields, 1);
+        final received = (await bEconomy.transactions()).content;
+        expect(
+          received.any((t) => t.type == WalletTransactionType.giftReceived),
+          isTrue,
+        );
       });
     },
   );

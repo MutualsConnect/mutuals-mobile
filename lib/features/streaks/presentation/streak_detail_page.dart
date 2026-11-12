@@ -179,6 +179,11 @@ class _ContentState extends ConsumerState<_Content> {
             textAlign: TextAlign.center,
             style: text.bodySmall?.copyWith(color: AppColors.inkSoft),
           ),
+          if (shields == 0)
+            TextButton(
+              onPressed: () => context.push('/wallet'),
+              child: const Text('Conseguir escudos'),
+            ),
         ],
       ],
     );
