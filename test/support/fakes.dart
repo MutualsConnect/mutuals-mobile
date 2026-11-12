@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:mutuals/core/location/location_service.dart';
+import 'package:mutuals/core/media/photo_picker.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/network/page_response.dart';
 import 'package:mutuals/features/economy/data/economy_repository.dart';
 import 'package:mutuals/features/economy/data/models/economy_models.dart';
+import 'package:mutuals/features/gamification/data/gamification_repository.dart';
+import 'package:mutuals/features/gamification/data/models/gamification_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
@@ -371,4 +374,133 @@ class FakeEconomyRepository extends EconomyRepository {
     shields -= 1;
     return _wallet;
   }
+}
+
+Achievement fakeAchievement({
+  String code = 'A',
+  String name = 'Logro',
+  bool unlocked = false,
+  int reward = 5,
+}) => Achievement(
+  code: code,
+  name: name,
+  description: 'Descripción de $name',
+  type: 'STREAK',
+  threshold: 1,
+  rewardGems: reward,
+  unlocked: unlocked,
+  unlockedAt: unlocked ? DateTime(2026, 11, 10) : null,
+);
+
+AvatarItem fakeAvatarItem({
+  int id = 1,
+  String code = 'HAIR_CURLY',
+  String name = 'Cabello rizado',
+  AvatarLayer layer = AvatarLayer.hair,
+  int price = 20,
+  bool owned = false,
+  bool equipped = false,
+  bool premiumOnly = false,
+}) => AvatarItem(
+  id: id,
+  code: code,
+  name: name,
+  layer: layer,
+  priceGems: price,
+  owned: owned,
+  equipped: equipped,
+  premiumOnly: premiumOnly,
+);
+
+Challenge fakeChallenge({
+  int id = 5,
+  bool requiresPhoto = false,
+  bool submittedByMe = false,
+  ChallengeStatus status = ChallengeStatus.open,
+  List<ChallengeSubmission> submissions = const [],
+}) => Challenge(
+  id: id,
+  template: ChallengeTemplate(
+    id: 1,
+    title: 'Pregunta del día',
+    prompt: 'Hazle una pregunta que nunca le hayas hecho',
+    type: 'REMOTE',
+    rewardGems: 10,
+    requiresPhoto: requiresPhoto,
+  ),
+  friend: FakeSocialRepository.luis,
+  weekStart: DateTime(2026, 11, 9),
+  status: status,
+  submittedByMe: submittedByMe,
+  submissions: submissions,
+);
+
+/// Repositorio de gamificación falso con datos configurables.
+class FakeGamificationRepository extends GamificationRepository {
+  FakeGamificationRepository({
+    this.achievementList = const [],
+    List<AvatarItem> items = const [],
+    this.challengeList = const [],
+  }) : items = List.of(items),
+       super(Dio());
+
+  final List<Achievement> achievementList;
+  final List<AvatarItem> items;
+  final List<Challenge> challengeList;
+
+  final purchased = <int>[];
+  final equipped = <int>[];
+  final submissions = <({int id, String? content, String? photo})>[];
+
+  @override
+  Future<List<Achievement>> achievements() async => achievementList;
+
+  @override
+  Future<List<AvatarItem>> avatarItems() async => List.of(items);
+
+  @override
+  Future<AvatarItem> purchaseAvatarItem(int itemId) async {
+    purchased.add(itemId);
+    final i = items.indexWhere((e) => e.id == itemId);
+    items[i] = items[i].copyWith(owned: true);
+    return items[i];
+  }
+
+  @override
+  Future<AvatarItem> equipAvatarItem(int itemId) async {
+    equipped.add(itemId);
+    final target = items.firstWhere((e) => e.id == itemId);
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].layer == target.layer) {
+        items[i] = items[i].copyWith(equipped: items[i].id == itemId);
+      }
+    }
+    return items.firstWhere((e) => e.id == itemId);
+  }
+
+  @override
+  Future<List<Challenge>> challenges() async => challengeList;
+
+  @override
+  Future<Challenge> challenge(int id) async =>
+      challengeList.firstWhere((c) => c.id == id);
+
+  @override
+  Future<Challenge> submitChallenge(
+    int id, {
+    String? content,
+    String? photoPath,
+  }) async {
+    submissions.add((id: id, content: content, photo: photoPath));
+    return challengeList.firstWhere((c) => c.id == id);
+  }
+}
+
+class FakePhotoPicker implements PhotoPicker {
+  FakePhotoPicker(this.path);
+
+  final String? path;
+
+  @override
+  Future<String?> pick() async => path;
 }
