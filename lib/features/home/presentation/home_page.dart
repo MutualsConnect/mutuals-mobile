@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../interactions/data/interaction_repository.dart';
+import '../../notifications/data/notification_repository.dart';
 import '../../social/data/social_repository.dart';
 import '../../streaks/data/streak_repository.dart';
 import '../../streaks/presentation/streak_tile.dart';
@@ -18,6 +19,7 @@ class HomePage extends ConsumerWidget {
   Future<void> _refresh(WidgetRef ref) async {
     ref.invalidate(receivedInvitationsProvider);
     ref.invalidate(pendingInteractionsProvider);
+    ref.invalidate(unreadCountProvider);
     ref.read(authControllerProvider.notifier).refreshUser();
     ref.invalidate(mutualsProvider);
     await ref.read(mutualsProvider.future);
@@ -33,7 +35,12 @@ class HomePage extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mutuals')),
+      appBar: AppBar(
+        title: const Text('Mutuals'),
+        actions: [
+          _NotificationBell(count: ref.watch(unreadCountProvider).value ?? 0),
+        ],
+      ),
       body: RefreshIndicator(
         color: AppColors.ink,
         onRefresh: () => _refresh(ref),
@@ -116,6 +123,26 @@ class HomePage extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: 'Notificaciones',
+      onPressed: () => context.push('/notifications'),
+      icon: Badge(
+        isLabelVisible: count > 0,
+        label: Text(count > 99 ? '99+' : '$count'),
+        backgroundColor: const Color(0xFFE5533D),
+        child: const Icon(Icons.notifications_none_rounded),
       ),
     );
   }
