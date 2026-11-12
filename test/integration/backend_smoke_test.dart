@@ -10,6 +10,8 @@ import 'package:mutuals/core/storage/token_storage.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/economy/data/economy_repository.dart';
 import 'package:mutuals/features/economy/data/models/economy_models.dart';
+import 'package:mutuals/features/gamification/data/gamification_repository.dart';
+import 'package:mutuals/features/gamification/data/models/gamification_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
@@ -506,4 +508,155 @@ void main() {
       });
     },
   );
+
+  group('gamificación en el backend real', skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar', () {
+    Future<String> sql(String query) async {
+      final result = await Process.run('docker', [
+        'exec',
+        'mutuals-backend-db-1',
+        'psql',
+        '-U',
+        'mutuals',
+        '-d',
+        'mutuals',
+        '-t',
+        '-A',
+        '-c',
+        query,
+      ]);
+      expect(result.exitCode, 0, reason: '${result.stderr}');
+      return (result.stdout as String).trim().split('\n').first.trim();
+    }
+
+    Future<
+      ({
+        GamificationRepository gami,
+        EconomyRepository economy,
+        SocialRepository social,
+        StreakRepository streaks,
+        int id,
+      })
+    >
+    user(String name) async {
+      final tokens = InMemoryTokenStorage();
+      final dio = createApiClient(
+        tokens: tokens,
+        onSessionExpired: () {},
+        baseUrl: 'http://localhost:8080/api/v1',
+      );
+      final id = DateTime.now().microsecondsSinceEpoch;
+      final u = await AuthRepository(dio, tokens).register(
+        email: '$name$id@example.com',
+        username: '$name$id',
+        displayName: 'User $name',
+        password: 'Prueba!2026x',
+      );
+      return (
+        gami: GamificationRepository(dio),
+        economy: EconomyRepository(dio),
+        social: SocialRepository(dio),
+        streaks: StreakRepository(dio),
+        id: u.id,
+      );
+    }
+
+    test(
+      'el catálogo de logros llega y una cuenta nueva no tiene ninguno',
+      () async {
+        final u = await user('g1');
+        final list = await u.gami.achievements();
+        expect(list, isNotEmpty);
+        expect(list.any((a) => a.code == 'FIRST_STREAK_DAY'), isTrue);
+        expect(list.every((a) => !a.unlocked), isTrue);
+      },
+    );
+
+    test('avatar: comprar con gemas, equipar y ver el estado', () async {
+      final u = await user('g2');
+      final items = await u.gami.avatarItems();
+      final hair = items.firstWhere((i) => i.code == 'HAIR_CURLY');
+      expect(hair.owned, isFalse);
+      await expectLater(
+        u.gami.purchaseAvatarItem(hair.id),
+        throwsA(isA<ApiException>()),
+      );
+
+      await Process.run('docker', [
+        'exec',
+        'mutuals-backend-db-1',
+        'psql',
+        '-U',
+        'mutuals',
+        '-d',
+        'mutuals',
+        '-c',
+        'update users set gems = 100 where id = ${u.id}',
+      ]);
+      final bought = await u.gami.purchaseAvatarItem(hair.id);
+      expect(bought.owned, isTrue);
+      expect((await u.economy.wallet()).gems, 100 - hair.priceGems);
+
+      await u.gami.equipAvatarItem(hair.id);
+      final after = await u.gami.avatarItems();
+      expect(after.firstWhere((i) => i.id == hair.id).equipped, isTrue);
+    });
+
+    test('desafío semanal: ambos cumplen, se completa y ganan gemas', () async {
+      final a = await user('g3a');
+      final b = await user('g3b');
+      await a.social.follow(b.id);
+      await b.social.follow(a.id);
+
+      final mutualId = await sql(
+        'select id from mutuals where (user_a_id = ${a.id} and user_b_id = ${b.id}) or (user_a_id = ${b.id} and user_b_id = ${a.id})',
+      );
+      // El desafío se asigna cada lunes; aquí lo creamos para esta semana (hora de Lima).
+      final lima = DateTime.now().toUtc().subtract(const Duration(hours: 5));
+      final monday = lima.subtract(Duration(days: lima.weekday - 1));
+      final weekStart =
+          '${monday.year}-${monday.month.toString().padLeft(2, '0')}-${monday.day.toString().padLeft(2, '0')}';
+      await sql(
+        "insert into challenges (created_at, updated_at, status, week_start, mutual_id, template_id) values (now(), now(), 'OPEN', '$weekStart', $mutualId, 1)",
+      );
+
+      final mine = await a.gami.challenges();
+      expect(mine.single.status, ChallengeStatus.open);
+      expect(mine.single.submittedByMe, isFalse);
+      final id = mine.single.id;
+
+      final first = await a.gami.submitChallenge(
+        id,
+        content: '¿Cuál es tu comida favorita?',
+      );
+      expect(first.submittedByMe, isTrue);
+      expect(first.status, ChallengeStatus.open);
+
+      final second = await b.gami.submitChallenge(id, content: 'El ceviche');
+      expect(second.status, ChallengeStatus.completed);
+
+      final reward = mine.single.template.rewardGems;
+      // Además del premio del desafío, completarlo puede desbloquear un logro con gemas.
+      // El logro se concede en segundo plano, igual que las notificaciones.
+      var unlocked = <Achievement>[];
+      for (var i = 0; i < 20 && unlocked.isEmpty; i++) {
+        unlocked = (await a.gami.achievements())
+            .where((x) => x.unlocked)
+            .toList();
+        if (unlocked.isEmpty) {
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+        }
+      }
+      expect(unlocked, isNotEmpty);
+      final bonus = unlocked.fold<int>(0, (sum, x) => sum + x.rewardGems);
+      expect((await a.economy.wallet()).gems, reward + bonus);
+      expect((await b.economy.wallet()).gems, greaterThanOrEqualTo(reward));
+
+      final revealed = await a.gami.challenge(id);
+      expect(revealed.submissions.every((s) => s.revealed), isTrue);
+      expect(
+        revealed.submissions.map((s) => s.content),
+        contains('El ceviche'),
+      );
+    });
+  });
 }

@@ -7,6 +7,9 @@ import '../../features/auth/presentation/forgot_password_page.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/register_page.dart';
 import '../../features/economy/presentation/wallet_page.dart';
+import '../../features/gamification/presentation/achievements_page.dart';
+import '../../features/gamification/presentation/avatar_page.dart';
+import '../../features/gamification/presentation/challenges_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/interactions/presentation/check_in_page.dart';
@@ -114,6 +117,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const NotificationsPage(),
       ),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
+      GoRoute(
+        path: '/achievements',
+        builder: (_, _) => const AchievementsPage(),
+      ),
+      GoRoute(path: '/avatar', builder: (_, _) => const AvatarPage()),
+      GoRoute(path: '/challenges', builder: (_, _) => const ChallengesPage()),
+      GoRoute(
+        path: '/challenges/:id',
+        builder: (_, state) => ChallengeDetailPage(
+          challengeId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
       GoRoute(path: '/qr', builder: (_, _) => const MyQrPage()),
       GoRoute(path: '/scan', builder: (_, _) => const ScanQrPage()),
       GoRoute(

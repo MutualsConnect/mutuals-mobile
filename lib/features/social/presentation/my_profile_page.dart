@@ -75,6 +75,33 @@ class MyProfilePage extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           ListTile(
+            leading: const Text('🏆', style: TextStyle(fontSize: 24)),
+            title: const Text(
+              'Logros',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/achievements'),
+          ),
+          ListTile(
+            leading: const Text('🎯', style: TextStyle(fontSize: 24)),
+            title: const Text(
+              'Desafíos de la semana',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/challenges'),
+          ),
+          ListTile(
+            leading: const Text('🧑‍🎨', style: TextStyle(fontSize: 24)),
+            title: const Text(
+              'Mi avatar',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/avatar'),
+          ),
+          ListTile(
             leading: const Text('💎', style: TextStyle(fontSize: 24)),
             title: const Text(
               'Billetera',
