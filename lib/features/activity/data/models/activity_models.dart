@@ -34,20 +34,21 @@ class Activity {
   final DateTime createdAt;
 
   factory Activity.fromJson(Map<String, dynamic> json) => Activity(
-        id: (json['id'] as num).toInt(),
-        actor: UserSummary.fromJson(json['actor'] as Map<String, dynamic>),
-        type: json['type'] as String,
-        title: json['title'] as String,
-        value: (json['value'] as num?)?.toInt(),
-        likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
-        commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
-        likedByMe: json['likedByMe'] as bool? ?? false,
-        fromMutual: json['fromMutual'] as bool? ?? false,
-        canComment: json['canComment'] as bool? ?? false,
-        createdAt: DateTime.parse(json['createdAt'] as String),
-      );
+    id: (json['id'] as num).toInt(),
+    actor: UserSummary.fromJson(json['actor'] as Map<String, dynamic>),
+    type: json['type'] as String,
+    title: json['title'] as String,
+    value: (json['value'] as num?)?.toInt(),
+    likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+    commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
+    likedByMe: json['likedByMe'] as bool? ?? false,
+    fromMutual: json['fromMutual'] as bool? ?? false,
+    canComment: json['canComment'] as bool? ?? false,
+    createdAt: DateTime.parse(json['createdAt'] as String),
+  );
 
-  Activity copyWith({int? likeCount, int? commentCount, bool? likedByMe}) => Activity(
+  Activity copyWith({int? likeCount, int? commentCount, bool? likedByMe}) =>
+      Activity(
         id: id,
         actor: actor,
         type: type,
@@ -62,13 +63,13 @@ class Activity {
       );
 
   String get emoji => switch (type) {
-        'STREAK_MILESTONE' => '🔥',
-        'PERSONAL_STREAK_MILESTONE' => '⚡',
-        'ACHIEVEMENT_UNLOCKED' => '🏅',
-        'RECORD_BROKEN' => '🏆',
-        'CHALLENGE_COMPLETED' => '🎯',
-        _ => '✨',
-      };
+    'STREAK_MILESTONE' => '🔥',
+    'PERSONAL_STREAK_MILESTONE' => '⚡',
+    'ACHIEVEMENT_UNLOCKED' => '🏅',
+    'RECORD_BROKEN' => '🏆',
+    'CHALLENGE_COMPLETED' => '🎯',
+    _ => '✨',
+  };
 }
 
 /// Un comentario (`CommentResponse`).
@@ -85,7 +86,8 @@ class ActivityComment {
   final String content;
   final DateTime createdAt;
 
-  factory ActivityComment.fromJson(Map<String, dynamic> json) => ActivityComment(
+  factory ActivityComment.fromJson(Map<String, dynamic> json) =>
+      ActivityComment(
         id: (json['id'] as num).toInt(),
         author: UserSummary.fromJson(json['author'] as Map<String, dynamic>),
         content: json['content'] as String,

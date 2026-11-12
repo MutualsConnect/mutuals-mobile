@@ -29,15 +29,14 @@ class FeedState {
     bool? loadingMore,
     String? error,
     bool clearError = false,
-  }) =>
-      FeedState(
-        items: items ?? this.items,
-        page: page ?? this.page,
-        last: last ?? this.last,
-        loading: loading ?? this.loading,
-        loadingMore: loadingMore ?? this.loadingMore,
-        error: clearError ? null : (error ?? this.error),
-      );
+  }) => FeedState(
+    items: items ?? this.items,
+    page: page ?? this.page,
+    last: last ?? this.last,
+    loading: loading ?? this.loading,
+    loadingMore: loadingMore ?? this.loadingMore,
+    error: clearError ? null : (error ?? this.error),
+  );
 }
 
 /// Feed de novedades: carga por páginas y actualiza likes y comentarios al instante.
@@ -54,7 +53,12 @@ class FeedController extends Notifier<FeedState> {
     state = state.copyWith(loading: true, clearError: true);
     try {
       final page = await _repo.feed();
-      state = FeedState(items: page.content, page: 0, last: page.last, loading: false);
+      state = FeedState(
+        items: page.content,
+        page: 0,
+        last: page.last,
+        loading: false,
+      );
     } on ApiException catch (e) {
       state = state.copyWith(loading: false, error: e.message);
     }
@@ -77,7 +81,9 @@ class FeedController extends Notifier<FeedState> {
   }
 
   void _replace(int id, Activity Function(Activity) change) {
-    state = state.copyWith(items: [for (final a in state.items) a.id == id ? change(a) : a]);
+    state = state.copyWith(
+      items: [for (final a in state.items) a.id == id ? change(a) : a],
+    );
   }
 
   /// Cambia el like al instante y lo revierte si el servidor falla. Devuelve el
@@ -86,7 +92,10 @@ class FeedController extends Notifier<FeedState> {
     final liked = !activity.likedByMe;
     _replace(
       activity.id,
-      (a) => a.copyWith(likedByMe: liked, likeCount: a.likeCount + (liked ? 1 : -1)),
+      (a) => a.copyWith(
+        likedByMe: liked,
+        likeCount: a.likeCount + (liked ? 1 : -1),
+      ),
     );
     try {
       if (liked) {
@@ -105,4 +114,6 @@ class FeedController extends Notifier<FeedState> {
       _replace(activityId, (a) => a.copyWith(commentCount: a.commentCount + 1));
 }
 
-final feedControllerProvider = NotifierProvider<FeedController, FeedState>(FeedController.new);
+final feedControllerProvider = NotifierProvider<FeedController, FeedState>(
+  FeedController.new,
+);
