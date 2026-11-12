@@ -254,6 +254,20 @@ class _WrappedStoriesPageState extends State<WrappedStoriesPage> {
                   ],
                 ),
               ),
+              if (slides[_index].showPlusUpsell)
+                Positioned(
+                  left: 28,
+                  right: 28,
+                  bottom: 28,
+                  child: FilledButton(
+                    onPressed: () => context.push('/plus'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.ink,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('⭐ Ver todos con Plus'),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
                 child: Row(
@@ -436,18 +450,6 @@ class _Friends extends StatelessWidget {
                   style: const TextStyle(fontSize: 13),
                 ),
               ],
-            ),
-          ),
-        if (slide.showPlusUpsell)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: FilledButton(
-              onPressed: () => context.push('/plus'),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.ink,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('⭐ Ver todos con Plus'),
             ),
           ),
       ],
