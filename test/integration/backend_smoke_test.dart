@@ -8,6 +8,7 @@ import 'package:mutuals/core/network/api_client.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/storage/token_storage.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
+import 'package:mutuals/features/activity/data/activity_repository.dart';
 import 'package:mutuals/features/economy/data/economy_repository.dart';
 import 'package:mutuals/features/economy/data/models/economy_models.dart';
 import 'package:mutuals/features/gamification/data/gamification_repository.dart';
@@ -656,6 +657,105 @@ void main() {
       expect(
         revealed.submissions.map((s) => s.content),
         contains('El ceviche'),
+      );
+    });
+  });
+
+  group('feed en el backend real', skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar', () {
+    Future<(ActivityRepository, SocialRepository, int)> user(
+      String name,
+    ) async {
+      final tokens = InMemoryTokenStorage();
+      final dio = createApiClient(
+        tokens: tokens,
+        onSessionExpired: () {},
+        baseUrl: 'http://localhost:8080/api/v1',
+      );
+      final id = DateTime.now().microsecondsSinceEpoch;
+      final u = await AuthRepository(dio, tokens).register(
+        email: '$name$id@example.com',
+        username: '$name$id',
+        displayName: 'User $name',
+        password: 'Prueba!2026x',
+      );
+      return (ActivityRepository(dio), SocialRepository(dio), u.id);
+    }
+
+    test('likes y comentarios: los mutuals pueden, quien solo sigue no', () async {
+      final (aFeed, aSocial, aId) = await user('f1a');
+      final (bFeed, bSocial, bId) = await user('f1b');
+      final (cFeed, cSocial, _) = await user('f1c');
+
+      // a y b son mutuals; c solo sigue a b.
+      await aSocial.follow(bId);
+      await bSocial.follow(aId);
+      await cSocial.follow(bId);
+
+      // Las novedades las crea el backend con hitos y logros; aquí insertamos una de b.
+      final inserted = await Process.run('docker', [
+        'exec',
+        'mutuals-backend-db-1',
+        'psql',
+        '-U',
+        'mutuals',
+        '-d',
+        'mutuals',
+        '-t',
+        '-A',
+        '-c',
+        "insert into activities (created_at, updated_at, comment_count, like_count, title, type, metric_value, actor_id) "
+            "values (now(), now(), 0, 0, 'User f1b llegó a 7 días de racha', 'STREAK_MILESTONE', 7, $bId) returning id",
+      ]);
+      expect(inserted.exitCode, 0, reason: '${inserted.stderr}');
+      final activityId = int.parse(
+        (inserted.stdout as String).trim().split('\n').first,
+      );
+
+      // a (mutual) la ve con permiso para comentar.
+      final seenByA = (await aFeed.feed()).content.firstWhere(
+        (x) => x.id == activityId,
+      );
+      expect(seenByA.fromMutual, isTrue);
+      expect(seenByA.canComment, isTrue);
+      expect(seenByA.likedByMe, isFalse);
+
+      // like y unlike.
+      await aFeed.like(activityId);
+      expect(
+        (await aFeed.feed()).content
+            .firstWhere((x) => x.id == activityId)
+            .likedByMe,
+        isTrue,
+      );
+      await aFeed.unlike(activityId);
+      expect(
+        (await aFeed.feed()).content
+            .firstWhere((x) => x.id == activityId)
+            .likedByMe,
+        isFalse,
+      );
+
+      // comentar.
+      final comment = await aFeed.comment(activityId, '¡Qué racha!');
+      expect(comment.content, '¡Qué racha!');
+      final comments = (await bFeed.comments(activityId)).content;
+      expect(comments.single.content, '¡Qué racha!');
+      expect(
+        (await bFeed.feed()).content
+            .firstWhere((x) => x.id == activityId)
+            .commentCount,
+        1,
+      );
+
+      // c ve la novedad pero no puede comentar.
+      final seenByC = (await cFeed.feed()).content.firstWhere(
+        (x) => x.id == activityId,
+      );
+      expect(seenByC.fromMutual, isFalse);
+      expect(seenByC.canComment, isFalse);
+      await expectLater(
+        cFeed.comment(activityId, 'Hola'),
+        throwsA(isA<ApiException>()),
       );
     });
   });

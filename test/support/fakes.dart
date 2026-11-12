@@ -3,6 +3,8 @@ import 'package:mutuals/core/location/location_service.dart';
 import 'package:mutuals/core/media/photo_picker.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/network/page_response.dart';
+import 'package:mutuals/features/activity/data/activity_repository.dart';
+import 'package:mutuals/features/activity/data/models/activity_models.dart';
 import 'package:mutuals/features/economy/data/economy_repository.dart';
 import 'package:mutuals/features/economy/data/models/economy_models.dart';
 import 'package:mutuals/features/gamification/data/gamification_repository.dart';
@@ -503,4 +505,99 @@ class FakePhotoPicker implements PhotoPicker {
 
   @override
   Future<String?> pick() async => path;
+}
+
+Activity fakeActivity({
+  int id = 1,
+  String title = 'Luis desbloqueó Primer fueguito',
+  String type = 'ACHIEVEMENT_UNLOCKED',
+  int likes = 0,
+  int comments = 0,
+  bool liked = false,
+  bool fromMutual = true,
+  bool canComment = true,
+}) => Activity(
+  id: id,
+  actor: FakeSocialRepository.luis,
+  type: type,
+  title: title,
+  likeCount: likes,
+  commentCount: comments,
+  likedByMe: liked,
+  fromMutual: fromMutual,
+  canComment: canComment,
+  createdAt: DateTime.now().subtract(const Duration(minutes: 10)),
+);
+
+ActivityComment fakeComment({int id = 1, String content = '¡Felicidades!'}) =>
+    ActivityComment(
+      id: id,
+      author: FakeSocialRepository.luis,
+      content: content,
+      createdAt: DateTime.now().subtract(const Duration(minutes: 2)),
+    );
+
+/// Repositorio del feed falso con páginas de 2 novedades.
+class FakeActivityRepository extends ActivityRepository {
+  FakeActivityRepository({
+    this.items = const [],
+    List<ActivityComment> comments = const [],
+    this.likeError,
+  }) : commentList = List.of(comments),
+       super(Dio());
+
+  final List<Activity> items;
+  final List<ActivityComment> commentList;
+  final ApiException? likeError;
+
+  final liked = <int>[];
+  final unliked = <int>[];
+  final sentComments = <(int, String)>[];
+  final feedPages = <int>[];
+
+  @override
+  Future<PageResponse<Activity>> feed({int page = 0}) async {
+    feedPages.add(page);
+    const size = 2;
+    final start = page * size;
+    final end = (start + size).clamp(0, items.length);
+    return PageResponse(
+      content: start >= items.length ? [] : items.sublist(start, end),
+      page: page,
+      totalElements: items.length,
+      last: end >= items.length,
+    );
+  }
+
+  @override
+  Future<Activity> like(int id) async {
+    if (likeError != null) throw likeError!;
+    liked.add(id);
+    return items.firstWhere((a) => a.id == id);
+  }
+
+  @override
+  Future<void> unlike(int id) async {
+    if (likeError != null) throw likeError!;
+    unliked.add(id);
+  }
+
+  @override
+  Future<PageResponse<ActivityComment>> comments(
+    int id, {
+    int page = 0,
+  }) async => PageResponse(
+    content: commentList,
+    page: 0,
+    totalElements: commentList.length,
+    last: true,
+  );
+
+  @override
+  Future<ActivityComment> comment(int id, String content) async {
+    sentComments.add((id, content));
+    final c = fakeComment(id: 100 + sentComments.length, content: content);
+    commentList.add(c);
+    return c;
+  }
 }
