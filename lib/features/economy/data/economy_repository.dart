@@ -11,26 +11,39 @@ class EconomyRepository {
 
   final Dio _dio;
 
-  Future<Wallet> wallet() async =>
-      Wallet.fromJson((await _guard(() => _dio.get<Map<String, dynamic>>('/wallet')))!);
+  Future<Wallet> wallet() async => Wallet.fromJson(
+    (await _guard(() => _dio.get<Map<String, dynamic>>('/wallet')))!,
+  );
 
   Future<PageResponse<WalletTransaction>> transactions({int page = 0}) async {
-    final data = await _guard(() => _dio.get<Map<String, dynamic>>(
-          '/wallet/transactions',
-          queryParameters: {'page': page},
-        ));
+    final data = await _guard(
+      () => _dio.get<Map<String, dynamic>>(
+        '/wallet/transactions',
+        queryParameters: {'page': page},
+      ),
+    );
     return PageResponse.fromJson(data!, WalletTransaction.fromJson);
   }
 
   /// Compra de 1 a 5 escudos con gemas.
   Future<Wallet> purchaseShields(int quantity) async => Wallet.fromJson(
-        (await _guard(() => _dio.post<Map<String, dynamic>>('/shields/purchase', data: {'quantity': quantity})))!,
-      );
+    (await _guard(
+      () => _dio.post<Map<String, dynamic>>(
+        '/shields/purchase',
+        data: {'quantity': quantity},
+      ),
+    ))!,
+  );
 
   /// Regala uno de tus escudos a un mutual.
   Future<Wallet> giftShield(int friendId) async => Wallet.fromJson(
-        (await _guard(() => _dio.post<Map<String, dynamic>>('/shields/gifts', data: {'friendId': friendId})))!,
-      );
+    (await _guard(
+      () => _dio.post<Map<String, dynamic>>(
+        '/shields/gifts',
+        data: {'friendId': friendId},
+      ),
+    ))!,
+  );
 
   Future<T?> _guard<T>(Future<Response<T>> Function() call) async {
     try {
@@ -41,8 +54,9 @@ class EconomyRepository {
   }
 }
 
-final economyRepositoryProvider =
-    Provider<EconomyRepository>((ref) => EconomyRepository(ref.watch(dioProvider)));
+final economyRepositoryProvider = Provider<EconomyRepository>(
+  (ref) => EconomyRepository(ref.watch(dioProvider)),
+);
 
 final walletProvider = FutureProvider.autoDispose<Wallet>(
   (ref) => ref.watch(economyRepositoryProvider).wallet(),
