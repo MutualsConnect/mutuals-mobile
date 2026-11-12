@@ -17,6 +17,8 @@ class MutualsApp extends ConsumerWidget {
       title: 'Mutuals',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      // El diseño de Mutuals es claro y cálido; no seguimos el modo oscuro del sistema.
+      themeMode: ThemeMode.light,
       routerConfig: ref.watch(routerProvider),
     );
   }
