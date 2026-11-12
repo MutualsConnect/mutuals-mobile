@@ -8,16 +8,16 @@ void main() {
   runApp(const ProviderScope(child: MutualsApp()));
 }
 
-class MutualsApp extends StatelessWidget {
+class MutualsApp extends ConsumerWidget {
   const MutualsApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Mutuals',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      routerConfig: appRouter,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }
