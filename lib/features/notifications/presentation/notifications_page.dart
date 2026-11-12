@@ -147,6 +147,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         actions: [
           if (hasUnread)
             TextButton(onPressed: _markAll, child: const Text('Marcar todas')),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
