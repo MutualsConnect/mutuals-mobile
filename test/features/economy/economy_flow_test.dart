@@ -200,6 +200,23 @@ void main() {
     expect(find.text('Ver más'), findsNothing);
   });
 
+  test(
+    'el movimiento de escudos se interpreta con la moneda del backend (SHIELD)',
+    () {
+      final t = WalletTransaction.fromJson({
+        'id': 1,
+        'currency': 'SHIELD',
+        'amount': 1,
+        'type': 'GRANT',
+        'reason': 'Shield purchase',
+        'createdAt': '2026-11-12T01:00:00Z',
+      });
+      expect(t.currency, WalletCurrency.shields);
+      expect(t.currencyEmoji, '🛡️');
+      expect(t.title, 'Escudos añadidos');
+    },
+  );
+
   test('Wallet calcula cuántos escudos alcanzan', () {
     expect(
       const Wallet(gems: 45, shields: 0, shieldPriceGems: 20).affordableShields,

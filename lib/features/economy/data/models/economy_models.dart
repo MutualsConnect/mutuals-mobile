@@ -61,7 +61,7 @@ class WalletTransaction {
   factory WalletTransaction.fromJson(Map<String, dynamic> json) =>
       WalletTransaction(
         id: (json['id'] as num).toInt(),
-        currency: json['currency'] == 'SHIELDS'
+        currency: json['currency'] == 'SHIELD'
             ? WalletCurrency.shields
             : WalletCurrency.gems,
         amount: (json['amount'] as num).toInt(),
@@ -80,6 +80,9 @@ class WalletTransaction {
     WalletTransactionType.giftSent => 'Regalaste un escudo',
     WalletTransactionType.giftReceived => 'Te regalaron un escudo',
     WalletTransactionType.used => 'Usaste un escudo',
-    WalletTransactionType.grant => 'Recibiste un obsequio',
+    WalletTransactionType.grant =>
+      currency == WalletCurrency.shields
+          ? 'Escudos añadidos'
+          : 'Recibiste un obsequio',
   };
 }
