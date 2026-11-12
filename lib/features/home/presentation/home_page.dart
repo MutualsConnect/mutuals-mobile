@@ -199,27 +199,33 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.sky,
+      child: Material(
+        color: AppColors.sky,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
           borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 26)),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          onTap: () => context.push('/wallet'),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
               children: [
-                Text(
-                  value,
-                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                Text(icon, style: const TextStyle(fontSize: 26)),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      value,
+                      style: text.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Text(label, style: text.bodySmall),
+                  ],
                 ),
-                Text(label, style: text.bodySmall),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
