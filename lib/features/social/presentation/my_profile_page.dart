@@ -52,7 +52,15 @@ class MyProfilePage extends ConsumerWidget {
             const SizedBox(height: 14),
             Text(user.bio!, textAlign: TextAlign.center, style: text.bodyLarge),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => context.push('/profile/edit'),
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: const Text('Editar perfil'),
+            ),
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               _Stat(

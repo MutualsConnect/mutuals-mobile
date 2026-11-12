@@ -24,6 +24,7 @@ import '../../features/interactions/presentation/pending_page.dart';
 import '../../features/interactions/presentation/scan_qr_page.dart';
 import '../../features/notifications/presentation/notifications_page.dart';
 import '../../features/social/data/models/social_models.dart';
+import '../../features/social/presentation/edit_profile_page.dart';
 import '../../features/social/presentation/mutuals_page.dart';
 import '../../features/social/presentation/my_profile_page.dart';
 import '../../features/social/presentation/profile_page.dart';
@@ -143,6 +144,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             PeriodWrappedPage(summary: state.extra! as WrappedSummary),
       ),
       GoRoute(path: '/plus', builder: (_, _) => const PlusPage()),
+      GoRoute(
+        path: '/profile/edit',
+        builder: (_, _) => const EditProfilePage(),
+      ),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
       GoRoute(
         path: '/achievements',
