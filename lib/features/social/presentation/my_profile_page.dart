@@ -75,6 +75,24 @@ class MyProfilePage extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           ListTile(
+            leading: const Text('🎬', style: TextStyle(fontSize: 24)),
+            title: const Text(
+              'Mi Wrapped',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/wrapped'),
+          ),
+          ListTile(
+            leading: const Text('⭐', style: TextStyle(fontSize: 24)),
+            title: Text(
+              user.premium ? 'Mutuals Plus (activo)' : 'Mutuals Plus',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/plus'),
+          ),
+          ListTile(
             leading: const Text('🏆', style: TextStyle(fontSize: 24)),
             title: const Text(
               'Logros',

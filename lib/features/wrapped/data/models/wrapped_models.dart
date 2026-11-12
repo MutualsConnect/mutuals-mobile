@@ -113,8 +113,9 @@ String wrappedPeriodLabel(String key) {
   final parts = key.split('-');
   if (parts.length == 2) {
     final month = int.tryParse(parts[1]);
-    if (month != null && month >= 1 && month <= 12)
+    if (month != null && month >= 1 && month <= 12) {
       return '${_monthNames[month - 1]} ${parts[0]}';
+    }
   }
   return key;
 }

@@ -71,3 +71,14 @@ const _benefitTranslations = {
 /// El backend envía los beneficios en inglés; los mostramos en español.
 String translateBenefit(String benefit) =>
     _benefitTranslations[benefit] ?? benefit;
+
+/// Beneficios de Mutuals Plus, para mostrarlos a quien aún tiene el plan gratis.
+const plusBenefits = [
+  'Rachas activas ilimitadas',
+  '1 escudo gratis cada mes',
+  'Recupera una racha rota una vez al mes',
+  'Wrapped histórico completo por amigo',
+  'Ítems de avatar exclusivos',
+  'Temas de perfil, banner, estilos de fuego e íconos',
+  'Widgets para la pantalla de inicio',
+];
