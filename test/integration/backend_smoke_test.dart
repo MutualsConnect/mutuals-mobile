@@ -18,6 +18,9 @@ import 'package:mutuals/features/interactions/data/models/interaction_models.dar
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
+import 'package:mutuals/features/subscription/data/models/subscription_models.dart';
+import 'package:mutuals/features/subscription/data/subscription_repository.dart';
+import 'package:mutuals/features/wrapped/data/wrapped_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
 
@@ -757,6 +760,98 @@ void main() {
         cFeed.comment(activityId, 'Hola'),
         throwsA(isA<ApiException>()),
       );
+    });
+  });
+
+  group('wrapped y Plus en el backend real', skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar', () {
+    Future<(WrappedRepository, SubscriptionRepository, AuthRepository, int)>
+    user(String name) async {
+      final tokens = InMemoryTokenStorage();
+      final dio = createApiClient(
+        tokens: tokens,
+        onSessionExpired: () {},
+        baseUrl: 'http://localhost:8080/api/v1',
+      );
+      final id = DateTime.now().microsecondsSinceEpoch;
+      final auth = AuthRepository(dio, tokens);
+      final u = await auth.register(
+        email: '$name$id@example.com',
+        username: '$name$id',
+        displayName: 'User $name',
+        password: 'Prueba!2026x',
+      );
+      return (WrappedRepository(dio), SubscriptionRepository(dio), auth, u.id);
+    }
+
+    test(
+      'una cuenta nueva tiene el plan gratis y un Wrapped histórico vacío',
+      () async {
+        final (wrapped, subs, _, _) = await user('p1');
+        final plan = await subs.current();
+        expect(plan.plan, SubscriptionPlan.free);
+        expect(plan.isPlus, isFalse);
+        expect(plan.maxActiveStreaks, 4);
+
+        expect(await wrapped.mine(), isEmpty);
+        final all = await wrapped.allTime();
+        expect(all.fullAccess, isFalse);
+        expect(all.overall.isEmpty, isTrue);
+      },
+    );
+
+    test(
+      'suscribirse a Plus, ver el beneficio y cancelar la renovación',
+      () async {
+        final (wrapped, subs, auth, _) = await user('p2');
+
+        final plus = await subs.subscribe(BillingPeriod.monthly);
+        expect(plus.isPlus, isTrue);
+        expect(plus.status, SubscriptionStatus.active);
+        expect(plus.unlimitedStreaks, isTrue);
+        expect(plus.expiresAt, isNotNull);
+        expect(
+          plus.benefits.map(translateBenefit),
+          contains('Rachas activas ilimitadas'),
+        );
+
+        // Con Plus el Wrapped histórico muestra todas las secciones por amigo.
+        expect((await wrapped.allTime()).fullAccess, isTrue);
+        expect((await auth.restoreSession())?.premium, isTrue);
+
+        final canceled = await subs.cancel();
+        expect(canceled.isCanceled, isTrue);
+        expect(canceled.isPlus, isTrue); // sigue activo hasta el vencimiento
+      },
+    );
+
+    test('un Wrapped generado se lee con sus estadísticas', () async {
+      final (wrapped, _, _, id) = await user('p3');
+      final json =
+          '{"interactions":42,"activeDays":12,"longestStreak":9,"interactionsByMethod":{"QR":30,"MANUAL":12},'
+          '"topMutualUsername":"luis","topMutualDisplayName":"Luis","topMutualInteractions":25,'
+          '"challengesCompleted":2,"gemsEarned":40,"shieldsGifted":1,"newMutuals":3}';
+      final result = await Process.run('docker', [
+        'exec',
+        'mutuals-backend-db-1',
+        'psql',
+        '-U',
+        'mutuals',
+        '-d',
+        'mutuals',
+        '-c',
+        "insert into wrapped_summaries (created_at, updated_at, generated_at, period_key, period_type, scope, stats_json, user_id) "
+            "values (now(), now(), now(), '2026-10', 'MONTHLY', 'USER', '$json', $id)",
+      ]);
+      expect(result.exitCode, 0, reason: '${result.stderr}');
+
+      final list = await wrapped.mine();
+      expect(list.single.periodKey, '2026-10');
+      expect(list.single.label, 'Octubre 2026');
+      final stats = list.single.stats;
+      expect(stats.interactions, 42);
+      expect(stats.interactionsByMethod, {'QR': 30, 'MANUAL': 12});
+      expect(stats.topMutualDisplayName, 'Luis');
+      expect(stats.newMutuals, 3);
     });
   });
 }
