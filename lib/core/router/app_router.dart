@@ -12,6 +12,7 @@ import '../../features/interactions/presentation/check_in_page.dart';
 import '../../features/interactions/presentation/my_qr_page.dart';
 import '../../features/interactions/presentation/pending_page.dart';
 import '../../features/interactions/presentation/scan_qr_page.dart';
+import '../../features/notifications/presentation/notifications_page.dart';
 import '../../features/social/data/models/social_models.dart';
 import '../../features/social/presentation/mutuals_page.dart';
 import '../../features/social/presentation/my_profile_page.dart';
@@ -106,6 +107,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (_, _) => const NotificationsPage(),
       ),
       GoRoute(path: '/qr', builder: (_, _) => const MyQrPage()),
       GoRoute(path: '/scan', builder: (_, _) => const ScanQrPage()),

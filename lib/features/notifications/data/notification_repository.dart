@@ -18,23 +18,29 @@ class NotificationRepository {
     NotificationPriority? priority,
     int page = 0,
   }) async {
-    final data = await _guard(() => _dio.get<Map<String, dynamic>>(
-          '/notifications',
-          queryParameters: {
-            'page': page,
-            if (priority != null) 'priority': priority.name.toUpperCase(),
-          },
-        ));
+    final data = await _guard(
+      () => _dio.get<Map<String, dynamic>>(
+        '/notifications',
+        queryParameters: {
+          'page': page,
+          if (priority != null) 'priority': priority.name.toUpperCase(),
+        },
+      ),
+    );
     return PageResponse.fromJson(data!, AppNotification.fromJson);
   }
 
   Future<UnreadCount> unreadCount() async => UnreadCount.fromJson(
-        (await _guard(() => _dio.get<Map<String, dynamic>>('/notifications/unread-count')))!,
-      );
+    (await _guard(
+      () => _dio.get<Map<String, dynamic>>('/notifications/unread-count'),
+    ))!,
+  );
 
-  Future<void> markRead(int id) => _guard(() => _dio.patch<void>('/notifications/$id/read'));
+  Future<void> markRead(int id) =>
+      _guard(() => _dio.patch<void>('/notifications/$id/read'));
 
-  Future<void> markAllRead() => _guard(() => _dio.patch<void>('/notifications/read-all'));
+  Future<void> markAllRead() =>
+      _guard(() => _dio.patch<void>('/notifications/read-all'));
 
   Future<T?> _guard<T>(Future<Response<T>> Function() call) async {
     try {
@@ -45,18 +51,22 @@ class NotificationRepository {
   }
 }
 
-final notificationRepositoryProvider =
-    Provider<NotificationRepository>((ref) => NotificationRepository(ref.watch(dioProvider)));
+final notificationRepositoryProvider = Provider<NotificationRepository>(
+  (ref) => NotificationRepository(ref.watch(dioProvider)),
+);
 
 /// Cuántas notificaciones sin leer hay. Se actualiza cada minuto mientras la
 /// persona tiene la sesión abierta.
 final unreadCountProvider = FutureProvider<int>((ref) async {
-  final signedIn = ref.watch(authControllerProvider.select((s) => s.status == AuthStatus.authenticated));
+  final signedIn = ref.watch(
+    authControllerProvider.select((s) => s.status == AuthStatus.authenticated),
+  );
   if (!signedIn) return 0;
   final timer = Timer(const Duration(minutes: 1), ref.invalidateSelf);
   ref.onDispose(timer.cancel);
   try {
-    return (await ref.watch(notificationRepositoryProvider).unreadCount()).total;
+    return (await ref.watch(notificationRepositoryProvider).unreadCount())
+        .total;
   } on ApiException {
     return 0;
   }
