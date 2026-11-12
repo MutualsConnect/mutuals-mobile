@@ -8,6 +8,8 @@ import 'package:mutuals/core/network/api_client.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/storage/token_storage.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
+import 'package:mutuals/features/interactions/data/interaction_repository.dart';
+import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
@@ -210,6 +212,112 @@ void main() {
           anaStreaks.invite(luisId),
           throwsA(isA<ApiException>()),
         );
+      });
+    },
+  );
+
+  group(
+    'interacciones en el backend real',
+    skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar',
+    () {
+      /// Dos usuarios que ya son mutuals y tienen una racha activa.
+      Future<(InteractionRepository, InteractionRepository, int, int)>
+      activePair(String tag) async {
+        Future<(SocialRepository, StreakRepository, InteractionRepository, int)>
+        user(String name) async {
+          final tokens = InMemoryTokenStorage();
+          final dio = createApiClient(
+            tokens: tokens,
+            onSessionExpired: () {},
+            baseUrl: 'http://localhost:8080/api/v1',
+          );
+          final id = DateTime.now().microsecondsSinceEpoch;
+          final u = await AuthRepository(dio, tokens).register(
+            email: '$name$id@example.com',
+            username: '$name$id',
+            displayName: 'User $name',
+            password: 'Prueba!2026x',
+          );
+          return (
+            SocialRepository(dio),
+            StreakRepository(dio),
+            InteractionRepository(dio),
+            u.id,
+          );
+        }
+
+        final (aSocial, aStreaks, aInter, aId) = await user('${tag}a');
+        final (bSocial, bStreaks, bInter, bId) = await user('${tag}b');
+        await aSocial.follow(bId);
+        await bSocial.follow(aId);
+        await aStreaks.invite(bId);
+        final inv = (await bStreaks.invitations(InvitationBox.received)).single;
+        await bStreaks.respond(inv.id, accept: true);
+        return (aInter, bInter, aId, bId);
+      }
+
+      test('confirmación manual: uno registra y el otro confirma', () async {
+        final (ana, luis, _, luisId) = await activePair('m');
+        final created = await ana.create(luisId, note: 'Café');
+        expect(created.status, InteractionStatus.pending);
+
+        final pending = await luis.pending();
+        expect(pending.single.id, created.id);
+        expect(pending.single.note, 'Café');
+
+        final confirmed = await luis.confirm(created.id);
+        expect(confirmed.status, InteractionStatus.confirmed);
+        expect(confirmed.streakLength, 1);
+        expect(await luis.pending(), isEmpty);
+      });
+
+      test('rechazar una interacción', () async {
+        final (ana, luis, _, luisId) = await activePair('r');
+        final created = await ana.create(luisId);
+        final rejected = await luis.reject(created.id);
+        expect(rejected.status, InteractionStatus.rejected);
+      });
+
+      test('QR: escanear el código de un amigo confirma al instante', () async {
+        final (ana, luis, _, _) = await activePair('q');
+        final qr = await ana.myQr();
+        expect(qr.token, isNotEmpty);
+        expect(
+          qr.expiresAt.isAfter(
+            DateTime.now().subtract(const Duration(seconds: 5)),
+          ),
+          isTrue,
+        );
+
+        final result = await luis.checkInWithQr(qr.token);
+        expect(result.status, InteractionStatus.confirmed);
+        expect(result.streakLength, 1);
+      });
+
+      test('QR: un código inventado se rechaza', () async {
+        final (_, luis, _, _) = await activePair('x');
+        await expectLater(
+          luis.checkInWithQr('codigo-falso'),
+          throwsA(isA<ApiException>()),
+        );
+      });
+
+      test('proximidad: ambos envían su ubicación y se confirma', () async {
+        final (ana, luis, anaId, luisId) = await activePair('p');
+        final first = await ana.checkInByProximity(
+          friendId: luisId,
+          latitude: -12.0464,
+          longitude: -77.0428,
+        );
+        expect(first.confirmed, isFalse);
+
+        final second = await luis.checkInByProximity(
+          friendId: anaId,
+          latitude: -12.0464,
+          longitude: -77.0428,
+        );
+        expect(second.confirmed, isTrue);
+        expect(second.interaction?.streakLength, 1);
       });
     },
   );

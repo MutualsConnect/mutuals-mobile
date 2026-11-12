@@ -8,6 +8,11 @@ import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/register_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
+import '../../features/interactions/presentation/check_in_page.dart';
+import '../../features/interactions/presentation/my_qr_page.dart';
+import '../../features/interactions/presentation/pending_page.dart';
+import '../../features/interactions/presentation/scan_qr_page.dart';
+import '../../features/social/data/models/social_models.dart';
 import '../../features/social/presentation/mutuals_page.dart';
 import '../../features/social/presentation/my_profile_page.dart';
 import '../../features/social/presentation/profile_page.dart';
@@ -101,6 +106,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(path: '/qr', builder: (_, _) => const MyQrPage()),
+      GoRoute(path: '/scan', builder: (_, _) => const ScanQrPage()),
+      GoRoute(
+        path: '/pending',
+        builder: (_, _) => const PendingInteractionsPage(),
+      ),
+      GoRoute(
+        path: '/check-in',
+        builder: (_, state) => CheckInPage(friend: state.extra! as UserSummary),
       ),
       GoRoute(path: '/invitations', builder: (_, _) => const InvitationsPage()),
       GoRoute(path: '/history', builder: (_, _) => const HistoryPage()),
