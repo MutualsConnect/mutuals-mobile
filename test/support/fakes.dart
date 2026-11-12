@@ -14,6 +14,10 @@ import 'package:mutuals/features/interactions/data/models/interaction_models.dar
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
 import 'package:mutuals/features/social/data/models/social_models.dart';
+import 'package:mutuals/features/subscription/data/models/subscription_models.dart';
+import 'package:mutuals/features/subscription/data/subscription_repository.dart';
+import 'package:mutuals/features/wrapped/data/models/wrapped_models.dart';
+import 'package:mutuals/features/wrapped/data/wrapped_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
@@ -599,5 +603,91 @@ class FakeActivityRepository extends ActivityRepository {
     final c = fakeComment(id: 100 + sentComments.length, content: content);
     commentList.add(c);
     return c;
+  }
+}
+
+WrappedSummary fakeWrapped({
+  String key = '2026-10',
+  WrappedPeriodType type = WrappedPeriodType.monthly,
+  WrappedStats stats = const WrappedStats(
+    interactions: 42,
+    activeDays: 12,
+    longestStreak: 9,
+    interactionsByMethod: {'QR': 30, 'MANUAL': 12},
+    topMutualDisplayName: 'Luis Vega',
+    topMutualInteractions: 25,
+    challengesCompleted: 2,
+    gemsEarned: 40,
+    newMutuals: 3,
+  ),
+}) => WrappedSummary(
+  id: 1,
+  periodType: type,
+  periodKey: key,
+  generatedAt: DateTime(2026, 11, 1),
+  stats: stats,
+);
+
+/// Repositorio de Wrapped falso.
+class FakeWrappedRepository extends WrappedRepository {
+  FakeWrappedRepository({this.items = const [], AllTimeWrapped? allTime})
+    : _allTime =
+          allTime ??
+          const AllTimeWrapped(
+            overall: WrappedStats(),
+            fullAccess: false,
+            friends: [],
+          ),
+      super(Dio());
+
+  final List<WrappedSummary> items;
+  final AllTimeWrapped _allTime;
+
+  @override
+  Future<List<WrappedSummary>> mine() async => items;
+
+  @override
+  Future<AllTimeWrapped> allTime() async => _allTime;
+}
+
+Subscription fakeSubscription({
+  SubscriptionPlan plan = SubscriptionPlan.free,
+  SubscriptionStatus status = SubscriptionStatus.active,
+}) => Subscription(
+  plan: plan,
+  status: status,
+  expiresAt: plan == SubscriptionPlan.plus ? DateTime(2026, 12, 12) : null,
+  maxActiveStreaks: plan == SubscriptionPlan.plus ? 2147483647 : 4,
+  benefits: plan == SubscriptionPlan.plus
+      ? const ['Unlimited active streaks', '1 free shield every month']
+      : const ['Up to 4 active streaks'],
+);
+
+/// Repositorio de suscripción falso que cambia de plan al suscribirse o cancelar.
+class FakeSubscriptionRepository extends SubscriptionRepository {
+  FakeSubscriptionRepository([Subscription? initial])
+    : sub = initial ?? fakeSubscription(),
+      super(Dio());
+
+  Subscription sub;
+  final subscribed = <BillingPeriod>[];
+  var cancelCalls = 0;
+
+  @override
+  Future<Subscription> current() async => sub;
+
+  @override
+  Future<Subscription> subscribe(BillingPeriod period) async {
+    subscribed.add(period);
+    return sub = fakeSubscription(plan: SubscriptionPlan.plus);
+  }
+
+  @override
+  Future<Subscription> cancel() async {
+    cancelCalls++;
+    return sub = fakeSubscription(
+      plan: SubscriptionPlan.plus,
+      status: SubscriptionStatus.canceled,
+    );
   }
 }

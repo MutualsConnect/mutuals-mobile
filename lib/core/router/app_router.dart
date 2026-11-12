@@ -10,6 +10,9 @@ import '../../features/auth/presentation/forgot_password_page.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/register_page.dart';
 import '../../features/economy/presentation/wallet_page.dart';
+import '../../features/subscription/presentation/plus_page.dart';
+import '../../features/wrapped/data/models/wrapped_models.dart';
+import '../../features/wrapped/presentation/wrapped_page.dart';
 import '../../features/gamification/presentation/achievements_page.dart';
 import '../../features/gamification/presentation/avatar_page.dart';
 import '../../features/gamification/presentation/challenges_page.dart';
@@ -129,6 +132,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/activities/:id/comments',
         builder: (_, state) => CommentsPage(activity: state.extra! as Activity),
       ),
+      GoRoute(path: '/wrapped', builder: (_, _) => const WrappedPage()),
+      GoRoute(
+        path: '/wrapped/all-time',
+        builder: (_, _) => const AllTimeWrappedPage(),
+      ),
+      GoRoute(
+        path: '/wrapped/story',
+        builder: (_, state) =>
+            PeriodWrappedPage(summary: state.extra! as WrappedSummary),
+      ),
+      GoRoute(path: '/plus', builder: (_, _) => const PlusPage()),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
       GoRoute(
         path: '/achievements',
