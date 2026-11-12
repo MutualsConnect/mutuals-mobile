@@ -79,14 +79,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     }
     final results = ref.watch(searchProvider(_query));
     return results.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.peach)),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.peach),
+      ),
       error: (e, _) => ErrorState(
         message: e is ApiException ? e.message : 'No se pudo buscar',
         onRetry: () => ref.invalidate(searchProvider(_query)),
       ),
       data: (page) {
         if (page.content.isEmpty) {
-          return EmptyState(emoji: '🙈', title: 'Sin resultados', message: 'Nadie coincide con "$_query".');
+          return EmptyState(
+            emoji: '🙈',
+            title: 'Sin resultados',
+            message: 'Nadie coincide con "$_query".',
+          );
         }
         final text = Theme.of(context).textTheme;
         return ListView.builder(
@@ -95,11 +101,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           itemBuilder: (context, i) {
             final user = page.content[i];
             return ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
               leading: UserAvatar(name: user.displayName, url: user.avatarUrl),
-              title: Text(user.displayName, style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              title: Text(
+                user.displayName,
+                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+              ),
               subtitle: Text('@${user.username}'),
-              trailing: user.personalStreak > 0 ? Text('🔥 ${user.personalStreak}') : null,
+              trailing: user.personalStreak > 0
+                  ? Text('🔥 ${user.personalStreak}')
+                  : null,
               onTap: () => context.push('/users/${user.id}'),
             );
           },

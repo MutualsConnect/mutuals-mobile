@@ -6,6 +6,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
+import '../../streaks/data/streak_repository.dart';
 import '../data/models/social_models.dart';
 import '../data/social_repository.dart';
 
@@ -18,9 +19,13 @@ class MutualsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Mutuals')),
       body: mutuals.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.peach)),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.peach),
+        ),
         error: (e, _) => ErrorState(
-          message: e is ApiException ? e.message : 'No se pudieron cargar tus mutuals',
+          message: e is ApiException
+              ? e.message
+              : 'No se pudieron cargar tus mutuals',
           onRetry: () => ref.invalidate(mutualsProvider),
         ),
         data: (list) => RefreshIndicator(
@@ -49,13 +54,29 @@ class MutualsPage extends ConsumerWidget {
   }
 }
 
-class _MutualTile extends StatelessWidget {
+class _MutualTile extends ConsumerWidget {
   const _MutualTile({required this.card});
 
   final MutualCard card;
 
+  Future<void> _invite(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(streakRepositoryProvider).invite(card.friend.id);
+      ref.invalidate(mutualsProvider);
+      ref.invalidate(sentInvitationsProvider);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Invitación enviada a ${card.friend.displayName}'),
+        ),
+      );
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
     final streak = card.streak;
     return Material(
@@ -68,24 +89,50 @@ class _MutualTile extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              UserAvatar(name: card.friend.displayName, url: card.friend.avatarUrl, radius: 28),
+              UserAvatar(
+                name: card.friend.displayName,
+                url: card.friend.avatarUrl,
+                radius: 28,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(card.friend.displayName, style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                    Text('@${card.friend.username}', style: text.bodySmall?.copyWith(color: AppColors.inkSoft)),
+                    Text(
+                      card.friend.displayName,
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      '@${card.friend.username}',
+                      style: text.bodySmall?.copyWith(color: AppColors.inkSoft),
+                    ),
                     const SizedBox(height: 6),
                     _status(text, streak),
                   ],
                 ),
               ),
-              if (streak != null)
+              if (streak == null && !card.invitationPending)
+                FilledButton(
+                  onPressed: () => _invite(context, ref),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 40),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  ),
+                  child: const Text('Invitar'),
+                )
+              else if (streak != null)
                 Column(
                   children: [
                     const Text('🔥', style: TextStyle(fontSize: 26)),
-                    Text('${streak.currentLength}', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+                    Text(
+                      '${streak.currentLength}',
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -113,8 +160,14 @@ class _MutualTile extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: text.labelMedium?.copyWith(fontWeight: FontWeight.w700)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: text.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+      ),
     );
   }
 }

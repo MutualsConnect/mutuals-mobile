@@ -12,11 +12,11 @@ Dio createApiClient({
   HttpClientAdapter? adapter,
 }) {
   BaseOptions options() => BaseOptions(
-        baseUrl: baseUrl ?? ApiConfig.baseUrl,
-        connectTimeout: ApiConfig.connectTimeout,
-        receiveTimeout: ApiConfig.receiveTimeout,
-        headers: {'Accept': 'application/json'},
-      );
+    baseUrl: baseUrl ?? ApiConfig.baseUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    receiveTimeout: ApiConfig.receiveTimeout,
+    headers: {'Accept': 'application/json'},
+  );
 
   final plain = Dio(options());
   final dio = Dio(options());

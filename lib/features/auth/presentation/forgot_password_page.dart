@@ -69,70 +69,77 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   }
 
   Widget _buildSent(TextTheme text) => Column(
-        key: const ValueKey('sent'),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 40),
-          Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(
-              color: AppColors.sky,
-              borderRadius: BorderRadius.circular(28),
-            ),
-            child: const Icon(Icons.mark_email_read_outlined, size: 42),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Revisa tu correo',
-            textAlign: TextAlign.center,
-            style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Si ${_email.text.trim()} está registrado, te enviamos las instrucciones para restablecer tu contraseña.',
-            textAlign: TextAlign.center,
-            style: text.bodyLarge,
-          ),
-          const SizedBox(height: 32),
-          FilledButton(onPressed: () => context.pop(), child: const Text('Volver al inicio de sesión')),
-        ],
-      );
+    key: const ValueKey('sent'),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const SizedBox(height: 40),
+      Container(
+        width: 84,
+        height: 84,
+        decoration: BoxDecoration(
+          color: AppColors.sky,
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: const Icon(Icons.mark_email_read_outlined, size: 42),
+      ),
+      const SizedBox(height: 24),
+      Text(
+        'Revisa tu correo',
+        textAlign: TextAlign.center,
+        style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        'Si ${_email.text.trim()} está registrado, te enviamos las instrucciones para restablecer tu contraseña.',
+        textAlign: TextAlign.center,
+        style: text.bodyLarge,
+      ),
+      const SizedBox(height: 32),
+      FilledButton(
+        onPressed: () => context.pop(),
+        child: const Text('Volver al inicio de sesión'),
+      ),
+    ],
+  );
 
   Widget _buildForm(TextTheme text) => Form(
-        key: _form,
-        child: Column(
-          key: const ValueKey('form'),
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Recupera tu contraseña',
-              style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Ingresa tu correo y te enviaremos un enlace para crear una nueva.',
-              style: text.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            if (_error != null) ...[
-              ErrorBanner(_error!),
-              const SizedBox(height: 16),
-            ],
-            TextFormField(
-              controller: _email,
-              validator: Validators.email,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                labelText: 'Correo',
-                prefixIcon: Icon(Icons.mail_outline),
-              ),
-            ),
-            const SizedBox(height: 24),
-            LoadingButton(label: 'Enviar enlace', loading: _loading, onPressed: _submit),
-          ],
+    key: _form,
+    child: Column(
+      key: const ValueKey('form'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Recupera tu contraseña',
+          style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
         ),
-      );
+        const SizedBox(height: 6),
+        Text(
+          'Ingresa tu correo y te enviaremos un enlace para crear una nueva.',
+          style: text.bodyLarge,
+        ),
+        const SizedBox(height: 24),
+        if (_error != null) ...[
+          ErrorBanner(_error!),
+          const SizedBox(height: 16),
+        ],
+        TextFormField(
+          controller: _email,
+          validator: Validators.email,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.done,
+          onFieldSubmitted: (_) => _submit(),
+          decoration: const InputDecoration(
+            labelText: 'Correo',
+            prefixIcon: Icon(Icons.mail_outline),
+          ),
+        ),
+        const SizedBox(height: 24),
+        LoadingButton(
+          label: 'Enviar enlace',
+          loading: _loading,
+          onPressed: _submit,
+        ),
+      ],
+    ),
+  );
 }

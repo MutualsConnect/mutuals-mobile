@@ -51,7 +51,8 @@ class AuthInterceptor extends QueuedInterceptor {
     ErrorInterceptorHandler handler,
   ) async {
     final request = err.requestOptions;
-    final shouldRefresh = err.response?.statusCode == 401 &&
+    final shouldRefresh =
+        err.response?.statusCode == 401 &&
         !_isPublic(request) &&
         request.extra['retried'] != true;
     if (!shouldRefresh) return handler.next(err);
@@ -98,7 +99,10 @@ class AuthInterceptor extends QueuedInterceptor {
     }
   }
 
-  Future<void> _expire(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> _expire(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     await tokens.clear();
     onSessionExpired();
     handler.next(err);

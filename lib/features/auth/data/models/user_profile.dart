@@ -31,19 +31,19 @@ class UserProfile {
   final bool onboardingCompleted;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        id: (json['id'] as num).toInt(),
-        email: json['email'] as String,
-        username: json['username'] as String,
-        displayName: json['displayName'] as String,
-        bio: json['bio'] as String?,
-        avatarUrl: json['avatarUrl'] as String?,
-        roles: (json['roles'] as List? ?? const []).cast<String>(),
-        gems: (json['gems'] as num?)?.toInt() ?? 0,
-        shields: (json['shields'] as num?)?.toInt() ?? 0,
-        personalStreak: (json['personalStreak'] as num?)?.toInt() ?? 0,
-        longestPersonalStreak:
-            (json['longestPersonalStreak'] as num?)?.toInt() ?? 0,
-        premium: json['premium'] as bool? ?? false,
-        onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
-      );
+    id: (json['id'] as num).toInt(),
+    email: json['email'] as String,
+    username: json['username'] as String,
+    displayName: json['displayName'] as String,
+    bio: json['bio'] as String?,
+    avatarUrl: json['avatarUrl'] as String?,
+    roles: (json['roles'] as List? ?? const []).cast<String>(),
+    gems: (json['gems'] as num?)?.toInt() ?? 0,
+    shields: (json['shields'] as num?)?.toInt() ?? 0,
+    personalStreak: (json['personalStreak'] as num?)?.toInt() ?? 0,
+    longestPersonalStreak:
+        (json['longestPersonalStreak'] as num?)?.toInt() ?? 0,
+    premium: json['premium'] as bool? ?? false,
+    onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
+  );
 }

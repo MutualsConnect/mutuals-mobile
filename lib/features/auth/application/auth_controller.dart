@@ -40,6 +40,18 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  /// Vuelve a pedir tus datos (gemas, escudos, racha) al servidor.
+  Future<void> refreshUser() async {
+    try {
+      final user = await _repo.restoreSession();
+      if (user != null) {
+        state = AuthState(status: AuthStatus.authenticated, user: user);
+      }
+    } on ApiException {
+      // Si no hay red conservamos los datos que ya teníamos.
+    }
+  }
+
   /// Lanza [ApiException] si falla, para que el formulario muestre el error.
   Future<void> login(String email, String password) async {
     final user = await _repo.login(email: email, password: password);
@@ -67,5 +79,6 @@ class AuthController extends Notifier<AuthState> {
   }
 }
 
-final authControllerProvider =
-    NotifierProvider<AuthController, AuthState>(AuthController.new);
+final authControllerProvider = NotifierProvider<AuthController, AuthState>(
+  AuthController.new,
+);

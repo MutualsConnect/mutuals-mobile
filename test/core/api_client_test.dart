@@ -29,7 +29,8 @@ class _FakeAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-ResponseBody _json(int status, Map<String, dynamic> body) => ResponseBody.fromString(
+ResponseBody _json(int status, Map<String, dynamic> body) =>
+    ResponseBody.fromString(
       jsonEncode(body),
       status,
       headers: {
@@ -47,11 +48,11 @@ void main() {
   });
 
   Dio build(_FakeAdapter adapter) => createApiClient(
-        tokens: tokens,
-        onSessionExpired: () => expired++,
-        baseUrl: 'http://test/api/v1',
-        adapter: adapter,
-      );
+    tokens: tokens,
+    onSessionExpired: () => expired++,
+    baseUrl: 'http://test/api/v1',
+    adapter: adapter,
+  );
 
   test('agrega el access token a las rutas protegidas', () async {
     await tokens.save(accessToken: 'abc', refreshToken: 'r1');
@@ -66,7 +67,10 @@ void main() {
     final adapter = _FakeAdapter((_) => _json(200, {'ok': true}));
     await build(adapter).post('/auth/login', data: {});
 
-    expect(adapter.requests.single.headers.containsKey('Authorization'), isFalse);
+    expect(
+      adapter.requests.single.headers.containsKey('Authorization'),
+      isFalse,
+    );
   });
 
   test('ante un 401 renueva el token y reintenta la petición', () async {

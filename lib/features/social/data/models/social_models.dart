@@ -15,12 +15,12 @@ class UserSummary {
   final int personalStreak;
 
   factory UserSummary.fromJson(Map<String, dynamic> json) => UserSummary(
-        id: (json['id'] as num).toInt(),
-        username: json['username'] as String,
-        displayName: json['displayName'] as String,
-        avatarUrl: json['avatarUrl'] as String?,
-        personalStreak: (json['personalStreak'] as num?)?.toInt() ?? 0,
-      );
+    id: (json['id'] as num).toInt(),
+    username: json['username'] as String,
+    displayName: json['displayName'] as String,
+    avatarUrl: json['avatarUrl'] as String?,
+    personalStreak: (json['personalStreak'] as num?)?.toInt() ?? 0,
+  );
 }
 
 /// Perfil público de otro usuario (`PublicProfileResponse`).
@@ -59,20 +59,21 @@ class PublicProfile {
   bool get isMutual => followedByMe && followsMe;
 
   factory PublicProfile.fromJson(Map<String, dynamic> json) => PublicProfile(
-        id: (json['id'] as num).toInt(),
-        username: json['username'] as String,
-        displayName: json['displayName'] as String,
-        bio: json['bio'] as String?,
-        avatarUrl: json['avatarUrl'] as String?,
-        personalStreak: (json['personalStreak'] as num?)?.toInt() ?? 0,
-        longestPersonalStreak: (json['longestPersonalStreak'] as num?)?.toInt() ?? 0,
-        followers: (json['followers'] as num?)?.toInt() ?? 0,
-        following: (json['following'] as num?)?.toInt() ?? 0,
-        achievements: (json['achievements'] as num?)?.toInt() ?? 0,
-        followedByMe: json['followedByMe'] as bool? ?? false,
-        followsMe: json['followsMe'] as bool? ?? false,
-        premium: json['premium'] as bool? ?? false,
-      );
+    id: (json['id'] as num).toInt(),
+    username: json['username'] as String,
+    displayName: json['displayName'] as String,
+    bio: json['bio'] as String?,
+    avatarUrl: json['avatarUrl'] as String?,
+    personalStreak: (json['personalStreak'] as num?)?.toInt() ?? 0,
+    longestPersonalStreak:
+        (json['longestPersonalStreak'] as num?)?.toInt() ?? 0,
+    followers: (json['followers'] as num?)?.toInt() ?? 0,
+    following: (json['following'] as num?)?.toInt() ?? 0,
+    achievements: (json['achievements'] as num?)?.toInt() ?? 0,
+    followedByMe: json['followedByMe'] as bool? ?? false,
+    followsMe: json['followsMe'] as bool? ?? false,
+    premium: json['premium'] as bool? ?? false,
+  );
 }
 
 /// Resumen de una racha (`StreakCardResponse`).
@@ -92,12 +93,12 @@ class StreakCard {
   final bool shieldArmed;
 
   factory StreakCard.fromJson(Map<String, dynamic> json) => StreakCard(
-        id: (json['id'] as num).toInt(),
-        currentLength: (json['currentLength'] as num).toInt(),
-        countedToday: json['countedToday'] as bool? ?? false,
-        atRisk: json['atRisk'] as bool? ?? false,
-        shieldArmed: json['shieldArmed'] as bool? ?? false,
-      );
+    id: (json['id'] as num).toInt(),
+    currentLength: (json['currentLength'] as num).toInt(),
+    countedToday: json['countedToday'] as bool? ?? false,
+    atRisk: json['atRisk'] as bool? ?? false,
+    shieldArmed: json['shieldArmed'] as bool? ?? false,
+  );
 }
 
 /// Un mutual: amigo con el que te sigues mutuamente (`MutualCardResponse`).
@@ -115,13 +116,13 @@ class MutualCard {
   final bool invitationPending;
 
   factory MutualCard.fromJson(Map<String, dynamic> json) => MutualCard(
-        mutualId: (json['mutualId'] as num).toInt(),
-        friend: UserSummary.fromJson(json['friend'] as Map<String, dynamic>),
-        streak: json['streak'] == null
-            ? null
-            : StreakCard.fromJson(json['streak'] as Map<String, dynamic>),
-        invitationPending: json['invitationPending'] as bool? ?? false,
-      );
+    mutualId: (json['mutualId'] as num).toInt(),
+    friend: UserSummary.fromJson(json['friend'] as Map<String, dynamic>),
+    streak: json['streak'] == null
+        ? null
+        : StreakCard.fromJson(json['streak'] as Map<String, dynamic>),
+    invitationPending: json['invitationPending'] as bool? ?? false,
+  );
 }
 
 /// Resultado de seguir a alguien (`FollowResponse`).
@@ -132,7 +133,7 @@ class FollowResult {
   final bool mutual;
 
   factory FollowResult.fromJson(Map<String, dynamic> json) => FollowResult(
-        following: json['following'] as bool,
-        mutual: json['mutual'] as bool,
-      );
+    following: json['following'] as bool,
+    mutual: json['mutual'] as bool,
+  );
 }

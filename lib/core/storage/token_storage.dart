@@ -4,14 +4,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 abstract interface class TokenStorage {
   Future<String?> readAccessToken();
   Future<String?> readRefreshToken();
-  Future<void> save({required String accessToken, required String refreshToken});
+  Future<void> save({
+    required String accessToken,
+    required String refreshToken,
+  });
   Future<void> clear();
 }
 
 /// Implementación segura: Keychain en iOS y Keystore en Android.
 class SecureTokenStorage implements TokenStorage {
   SecureTokenStorage([FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   final FlutterSecureStorage _storage;
 

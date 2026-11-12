@@ -5,6 +5,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
+import '../../streaks/data/streak_repository.dart';
 import '../data/models/social_models.dart';
 import '../data/social_repository.dart';
 
@@ -20,9 +21,13 @@ class ProfilePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(),
       body: profile.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.peach)),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.peach),
+        ),
         error: (e, _) => ErrorState(
-          message: e is ApiException ? e.message : 'No se pudo cargar el perfil',
+          message: e is ApiException
+              ? e.message
+              : 'No se pudo cargar el perfil',
           onRetry: () => ref.invalidate(profileProvider(userId)),
         ),
         data: (p) => _Content(profile: p),
@@ -49,7 +54,22 @@ class _ContentState extends ConsumerState<_Content> {
   }
 
   void _toast(String message) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+
+  Future<void> _inviteToStreak() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(streakRepositoryProvider).invite(widget.profile.id);
+      ref.invalidate(mutualsProvider);
+      ref.invalidate(sentInvitationsProvider);
+      _toast('Invitación enviada 🔥');
+    } on ApiException catch (e) {
+      if (mounted) _toast(e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   Future<void> _toggleFollow() async {
     final repo = ref.read(socialRepositoryProvider);
@@ -81,10 +101,18 @@ class _ContentState extends ConsumerState<_Content> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('¿Dejar de seguir?'),
-          content: Text('Tienes una racha activa con ${p.displayName}. Si dejas de seguirle, la perderán.'),
+          content: Text(
+            'Tienes una racha activa con ${p.displayName}. Si dejas de seguirle, la perderán.',
+          ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Dejar de seguir')),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Dejar de seguir'),
+            ),
           ],
         ),
       );
@@ -102,25 +130,49 @@ class _ContentState extends ConsumerState<_Content> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       children: [
-        Center(child: UserAvatar(name: p.displayName, url: p.avatarUrl, radius: 52)),
+        Center(
+          child: UserAvatar(name: p.displayName, url: p.avatarUrl, radius: 52),
+        ),
         const SizedBox(height: 14),
-        Text(p.displayName, textAlign: TextAlign.center, style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
-        Text('@${p.username}', textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: AppColors.inkSoft)),
+        Text(
+          p.displayName,
+          textAlign: TextAlign.center,
+          style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+        ),
+        Text(
+          '@${p.username}',
+          textAlign: TextAlign.center,
+          style: text.bodyMedium?.copyWith(color: AppColors.inkSoft),
+        ),
         if (p.isMutual)
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(color: AppColors.sky, borderRadius: BorderRadius.circular(20)),
-                child: const Text('🤝 Mutuals', style: TextStyle(fontWeight: FontWeight.w800)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.sky,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  '🤝 Mutuals',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
             ),
           )
         else if (p.followsMe)
           Padding(
             padding: const EdgeInsets.only(top: 10),
-            child: Center(child: Text('Te sigue', style: text.bodyMedium?.copyWith(color: AppColors.inkSoft))),
+            child: Center(
+              child: Text(
+                'Te sigue',
+                style: text.bodyMedium?.copyWith(color: AppColors.inkSoft),
+              ),
+            ),
           ),
         if (p.bio != null && p.bio!.isNotEmpty) ...[
           const SizedBox(height: 14),
@@ -144,7 +196,9 @@ class _ContentState extends ConsumerState<_Content> {
                   minimumSize: const Size.fromHeight(54),
                   foregroundColor: AppColors.ink,
                   side: const BorderSide(color: AppColors.peach, width: 2),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
                 ),
                 child: const Text('Siguiendo'),
               )
@@ -152,6 +206,14 @@ class _ContentState extends ConsumerState<_Content> {
                 onPressed: _busy ? null : _toggleFollow,
                 child: Text(p.followsMe ? 'Seguir también' : 'Seguir'),
               ),
+        if (p.isMutual) ...[
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: _busy ? null : _inviteToStreak,
+            icon: const Icon(Icons.local_fire_department_rounded),
+            label: const Text('Invitar a una racha'),
+          ),
+        ],
       ],
     );
   }
@@ -170,10 +232,16 @@ class _Stat extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(color: AppColors.peachLight, borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(
+          color: AppColors.peachLight,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           children: [
-            Text('${emoji ?? ''} $value'.trim(), style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+            Text(
+              '${emoji ?? ''} $value'.trim(),
+              style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            ),
             Text(label, style: text.bodySmall),
           ],
         ),

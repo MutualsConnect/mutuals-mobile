@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../storage/token_storage.dart';
 import 'api_client.dart';
 
-final tokenStorageProvider = Provider<TokenStorage>((ref) => SecureTokenStorage());
+final tokenStorageProvider = Provider<TokenStorage>(
+  (ref) => SecureTokenStorage(),
+);
 
 /// Aumenta cada vez que la sesión expira sin poder renovarse.
 /// La navegación lo escuchará para mandar al usuario al login.
@@ -15,8 +17,9 @@ class SessionExpiredNotifier extends Notifier<int> {
   void notify() => state++;
 }
 
-final sessionExpiredProvider =
-    NotifierProvider<SessionExpiredNotifier, int>(SessionExpiredNotifier.new);
+final sessionExpiredProvider = NotifierProvider<SessionExpiredNotifier, int>(
+  SessionExpiredNotifier.new,
+);
 
 final dioProvider = Provider<Dio>((ref) {
   return createApiClient(
