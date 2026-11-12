@@ -10,6 +10,8 @@ import 'package:mutuals/core/storage/token_storage.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
+import 'package:mutuals/features/notifications/data/models/notification_models.dart';
+import 'package:mutuals/features/notifications/data/notification_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
@@ -318,6 +320,91 @@ void main() {
         );
         expect(second.confirmed, isTrue);
         expect(second.interaction?.streakLength, 1);
+      });
+    },
+  );
+
+  group(
+    'notificaciones en el backend real',
+    skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar',
+    () {
+      /// Los avisos se crean en segundo plano; esperamos a que lleguen.
+      Future<List<AppNotification>> waitFor(
+        NotificationRepository repo,
+        bool Function(List<AppNotification>) ok,
+      ) async {
+        for (var i = 0; i < 20; i++) {
+          final page = (await repo.list()).content;
+          if (ok(page)) return page;
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+        }
+        fail('Las notificaciones no llegaron a tiempo');
+      }
+
+      test('seguir e invitar generan avisos que se pueden leer', () async {
+        Future<
+          (SocialRepository, StreakRepository, NotificationRepository, int)
+        >
+        user(String name) async {
+          final tokens = InMemoryTokenStorage();
+          final dio = createApiClient(
+            tokens: tokens,
+            onSessionExpired: () {},
+            baseUrl: 'http://localhost:8080/api/v1',
+          );
+          final id = DateTime.now().microsecondsSinceEpoch;
+          final u = await AuthRepository(dio, tokens).register(
+            email: '$name$id@example.com',
+            username: '$name$id',
+            displayName: 'User $name',
+            password: 'Prueba!2026x',
+          );
+          return (
+            SocialRepository(dio),
+            StreakRepository(dio),
+            NotificationRepository(dio),
+            u.id,
+          );
+        }
+
+        final (aSocial, aStreaks, _, aId) = await user('na');
+        final (bSocial, _, bNotes, bId) = await user('nb');
+
+        await aSocial.follow(bId);
+        await bSocial.follow(aId);
+        await aStreaks.invite(bId);
+
+        final list = await waitFor(
+          bNotes,
+          (l) => l.any((n) => n.type == 'STREAK_INVITATION'),
+        );
+        final invitation = list.firstWhere(
+          (n) => n.type == 'STREAK_INVITATION',
+        );
+        expect(invitation.read, isFalse);
+        expect(invitation.priority, NotificationPriority.high);
+        expect(invitation.route, '/invitations');
+        expect(
+          list.any((n) => n.type == 'NEW_FOLLOWER' && n.route == '/users/$aId'),
+          isTrue,
+        );
+
+        final before = (await bNotes.unreadCount()).total;
+        expect(before, greaterThanOrEqualTo(2));
+
+        await bNotes.markRead(invitation.id);
+        expect((await bNotes.unreadCount()).total, before - 1);
+
+        final important = (await bNotes.list(
+          priority: NotificationPriority.high,
+        )).content;
+        expect(
+          important.every((n) => n.priority == NotificationPriority.high),
+          isTrue,
+        );
+
+        await bNotes.markAllRead();
+        expect((await bNotes.unreadCount()).total, 0);
       });
     },
   );
