@@ -14,6 +14,7 @@ import 'package:mutuals/features/interactions/data/models/interaction_models.dar
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
 import 'package:mutuals/features/social/data/models/social_models.dart';
+import 'package:mutuals/features/social/data/profile_repository.dart';
 import 'package:mutuals/features/subscription/data/models/subscription_models.dart';
 import 'package:mutuals/features/subscription/data/subscription_repository.dart';
 import 'package:mutuals/features/wrapped/data/models/wrapped_models.dart';
@@ -690,4 +691,34 @@ class FakeSubscriptionRepository extends SubscriptionRepository {
       status: SubscriptionStatus.canceled,
     );
   }
+}
+
+/// Repositorio de perfil, bloqueos y reportes falso.
+class FakeProfileRepository extends ProfileRepository {
+  FakeProfileRepository({this.error}) : super(Dio());
+
+  final ApiException? error;
+  final updates = <({String name, String bio})>[];
+  final blocked = <int>[];
+  final reports = <({int id, ReportReason reason, String? description})>[];
+
+  @override
+  Future<void> updateProfile({
+    required String displayName,
+    required String bio,
+  }) async {
+    if (error != null) throw error!;
+    updates.add((name: displayName.trim(), bio: bio.trim()));
+  }
+
+  @override
+  Future<void> block(int userId) async => blocked.add(userId);
+
+  @override
+  Future<void> report(
+    int userId,
+    ReportReason reason, {
+    String? description,
+  }) async =>
+      reports.add((id: userId, reason: reason, description: description));
 }
