@@ -60,6 +60,16 @@ abstract final class AppTheme {
           ),
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.cream,
+        indicatorColor: AppColors.peach,
+        surfaceTintColor: Colors.transparent,
+        height: 68,
+        labelTextStyle: WidgetStatePropertyAll(
+          textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        iconTheme: const WidgetStatePropertyAll(IconThemeData(color: AppColors.ink)),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.ink,
