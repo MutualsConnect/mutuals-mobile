@@ -6,6 +6,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../interactions/data/interaction_repository.dart';
 import '../../social/data/social_repository.dart';
 import '../../streaks/data/streak_repository.dart';
 import '../../streaks/presentation/streak_tile.dart';
@@ -16,6 +17,7 @@ class HomePage extends ConsumerWidget {
 
   Future<void> _refresh(WidgetRef ref) async {
     ref.invalidate(receivedInvitationsProvider);
+    ref.invalidate(pendingInteractionsProvider);
     ref.read(authControllerProvider.notifier).refreshUser();
     ref.invalidate(mutualsProvider);
     await ref.read(mutualsProvider.future);
@@ -27,6 +29,7 @@ class HomePage extends ConsumerWidget {
     final mutuals = ref.watch(mutualsProvider);
     final invitations =
         ref.watch(receivedInvitationsProvider).value ?? const [];
+    final pending = ref.watch(pendingInteractionsProvider).value ?? const [];
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -53,9 +56,25 @@ class HomePage extends ConsumerWidget {
                 ),
               ],
             ),
+            if (pending.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _Banner(
+                emoji: '✅',
+                message: pending.length == 1
+                    ? '1 amigo espera tu confirmación'
+                    : '${pending.length} amigos esperan tu confirmación',
+                route: '/pending',
+              ),
+            ],
             if (invitations.isNotEmpty) ...[
               const SizedBox(height: 16),
-              _InvitationsBanner(count: invitations.length),
+              _Banner(
+                emoji: '💌',
+                message: invitations.length == 1
+                    ? 'Tienes 1 invitación de racha'
+                    : 'Tienes ${invitations.length} invitaciones de racha',
+                route: '/invitations',
+              ),
             ],
             const SizedBox(height: 24),
             Text(
@@ -102,10 +121,16 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _InvitationsBanner extends StatelessWidget {
-  const _InvitationsBanner({required this.count});
+class _Banner extends StatelessWidget {
+  const _Banner({
+    required this.emoji,
+    required this.message,
+    required this.route,
+  });
 
-  final int count;
+  final String emoji;
+  final String message;
+  final String route;
 
   @override
   Widget build(BuildContext context) {
@@ -114,18 +139,16 @@ class _InvitationsBanner extends StatelessWidget {
       borderRadius: BorderRadius.circular(22),
       child: InkWell(
         borderRadius: BorderRadius.circular(22),
-        onTap: () => context.push('/invitations'),
+        onTap: () => context.push(route),
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              const Text('💌', style: TextStyle(fontSize: 28)),
+              Text(emoji, style: const TextStyle(fontSize: 28)),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  count == 1
-                      ? 'Tienes 1 invitación de racha'
-                      : 'Tienes $count invitaciones de racha',
+                  message,
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),

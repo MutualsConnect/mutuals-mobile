@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
@@ -160,6 +161,12 @@ class _ContentState extends ConsumerState<_Content> {
         if (s.isActive) ...[
           const SizedBox(height: 24),
           FilledButton.icon(
+            onPressed: () => context.push('/check-in', extra: s.friend),
+            icon: const Icon(Icons.check_circle_outline_rounded),
+            label: const Text('Registrar hoy'),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
             onPressed: canArm && !_busy ? _armShield : null,
             icon: const Icon(Icons.shield_outlined),
             label: Text(
