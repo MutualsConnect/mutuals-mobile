@@ -29,6 +29,11 @@ class AppShell extends StatelessWidget {
             label: 'Mutuals',
           ),
           NavigationDestination(
+            icon: Icon(Icons.dynamic_feed_outlined),
+            selectedIcon: Icon(Icons.dynamic_feed_rounded),
+            label: 'Feed',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.search_rounded),
             selectedIcon: Icon(Icons.search_rounded),
             label: 'Buscar',

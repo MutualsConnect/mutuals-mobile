@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/activity/data/models/activity_models.dart';
+import '../../features/activity/presentation/comments_page.dart';
+import '../../features/activity/presentation/feed_page.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/presentation/forgot_password_page.dart';
 import '../../features/auth/presentation/login_page.dart';
@@ -34,6 +37,7 @@ abstract final class Routes {
   static const forgotPassword = '/forgot-password';
   static const home = '/';
   static const mutuals = '/mutuals';
+  static const feed = '/feed';
   static const search = '/search';
   static const me = '/me';
 
@@ -96,6 +100,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
+              GoRoute(path: Routes.feed, builder: (_, _) => const FeedPage()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
               GoRoute(
                 path: Routes.search,
                 builder: (_, _) => const SearchPage(),
@@ -115,6 +124,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/notifications',
         builder: (_, _) => const NotificationsPage(),
+      ),
+      GoRoute(
+        path: '/activities/:id/comments',
+        builder: (_, state) => CommentsPage(activity: state.extra! as Activity),
       ),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
       GoRoute(
