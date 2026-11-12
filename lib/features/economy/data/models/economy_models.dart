@@ -73,10 +73,21 @@ class WalletTransaction {
 
   String get currencyEmoji => currency == WalletCurrency.gems ? '💎' : '🛡️';
 
+  /// El backend registra los gastos de la tienda de avatar como
+  /// "Avatar item: nombre"; el resto de gastos son compras de escudos.
+  String get _spendTitle {
+    final r = reason;
+    if (r != null && r.startsWith('Avatar item')) {
+      final name = r.contains(':') ? r.split(':').last.trim() : '';
+      return name.isEmpty ? 'Compraste un ítem de avatar' : 'Avatar: $name';
+    }
+    return 'Compraste escudos';
+  }
+
   /// Título corto del movimiento, en español.
   String get title => switch (type) {
     WalletTransactionType.earn => 'Ganaste gemas',
-    WalletTransactionType.spend => 'Compraste escudos',
+    WalletTransactionType.spend => _spendTitle,
     WalletTransactionType.giftSent => 'Regalaste un escudo',
     WalletTransactionType.giftReceived => 'Te regalaron un escudo',
     WalletTransactionType.used => 'Usaste un escudo',

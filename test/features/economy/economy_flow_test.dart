@@ -217,6 +217,25 @@ void main() {
     },
   );
 
+  test(
+    'un gasto de la tienda de avatar no se titula como compra de escudos',
+    () {
+      final t = WalletTransaction.fromJson({
+        'id': 2,
+        'currency': 'GEM',
+        'amount': -20,
+        'type': 'SPEND',
+        'reason': 'Avatar item: Cabello rizado',
+        'createdAt': '2026-11-12T01:00:00Z',
+      });
+      expect(t.title, 'Avatar: Cabello rizado');
+      expect(
+        fakeTransaction(type: WalletTransactionType.spend).title,
+        'Compraste escudos',
+      );
+    },
+  );
+
   test('Wallet calcula cuántos escudos alcanzan', () {
     expect(
       const Wallet(gems: 45, shields: 0, shieldPriceGems: 20).affordableShields,
