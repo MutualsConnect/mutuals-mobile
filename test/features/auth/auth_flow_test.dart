@@ -103,7 +103,9 @@ void main() {
   testWidgets('cerrar sesión vuelve al login', (tester) async {
     final repo = _FakeAuthRepository(saved: _ana);
     await _pumpApp(tester, repo);
-    await tester.tap(find.byIcon(Icons.logout_rounded));
+    await tester.tap(find.text('Perfil'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cerrar sesión'));
     await tester.pumpAndSettle();
     expect(repo.loggedOut, isTrue);
     expect(find.text('Iniciar sesión'), findsOneWidget);
