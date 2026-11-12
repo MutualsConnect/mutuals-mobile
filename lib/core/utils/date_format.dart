@@ -28,3 +28,16 @@ String daysAgo(DateTime d, {DateTime? now}) {
   if (diff == 1) return 'ayer';
   return 'hace $diff días';
 }
+
+/// Tiempo transcurrido de forma corta: "ahora", "hace 5 min", "hace 3 h",
+/// "ayer" o la fecha.
+String timeAgo(DateTime moment, {DateTime? now}) {
+  final current = now ?? DateTime.now();
+  final diff = current.difference(moment);
+  if (diff.inMinutes < 1) return 'ahora';
+  if (diff.inMinutes < 60) return 'hace ${diff.inMinutes} min';
+  if (diff.inHours < 24) return 'hace ${diff.inHours} h';
+  if (diff.inDays == 1) return 'ayer';
+  if (diff.inDays < 7) return 'hace ${diff.inDays} días';
+  return formatDate(moment);
+}

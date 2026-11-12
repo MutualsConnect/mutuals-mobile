@@ -4,6 +4,8 @@ import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/network/page_response.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
+import 'package:mutuals/features/notifications/data/models/notification_models.dart';
+import 'package:mutuals/features/notifications/data/notification_repository.dart';
 import 'package:mutuals/features/social/data/models/social_models.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
@@ -224,4 +226,68 @@ class FakeLocationService implements LocationService {
     if (error != null) throw error!;
     return (latitude: -12.05, longitude: -77.04);
   }
+}
+
+AppNotification fakeNotification({
+  int id = 1,
+  String type = 'STREAK_INVITATION',
+  String title = 'Luis quiere empezar una racha contigo',
+  bool read = false,
+  String? referenceType = 'STREAK_INVITATION',
+  int? referenceId = 4,
+  NotificationPriority priority = NotificationPriority.high,
+}) => AppNotification(
+  id: id,
+  type: type,
+  priority: priority,
+  title: title,
+  body: 'Acepta y empiecen hoy',
+  read: read,
+  referenceType: referenceType,
+  referenceId: referenceId,
+  createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
+);
+
+/// Repositorio de notificaciones falso con páginas de 2 elementos.
+class FakeNotificationRepository extends NotificationRepository {
+  FakeNotificationRepository({List<AppNotification> items = const []})
+    : items = List.of(items),
+      super(Dio());
+
+  final List<AppNotification> items;
+  final read = <int>[];
+  var readAllCalls = 0;
+  final pagesRequested = <int>[];
+  final filtersRequested = <NotificationPriority?>[];
+
+  @override
+  Future<PageResponse<AppNotification>> list({
+    NotificationPriority? priority,
+    int page = 0,
+  }) async {
+    pagesRequested.add(page);
+    filtersRequested.add(priority);
+    final filtered = priority == null
+        ? items
+        : items.where((n) => n.priority == priority).toList();
+    const size = 2;
+    final start = page * size;
+    final end = (start + size).clamp(0, filtered.length);
+    return PageResponse(
+      content: start >= filtered.length ? [] : filtered.sublist(start, end),
+      page: page,
+      totalElements: filtered.length,
+      last: end >= filtered.length,
+    );
+  }
+
+  @override
+  Future<UnreadCount> unreadCount() async =>
+      UnreadCount(total: items.where((n) => !n.read).length);
+
+  @override
+  Future<void> markRead(int id) async => read.add(id);
+
+  @override
+  Future<void> markAllRead() async => readAllCalls++;
 }

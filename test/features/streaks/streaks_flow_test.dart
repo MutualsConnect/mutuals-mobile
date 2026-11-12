@@ -5,6 +5,7 @@ import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/auth/data/models/user_profile.dart';
 import 'package:mutuals/features/social/data/models/social_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
+import 'package:mutuals/features/notifications/data/notification_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
@@ -71,6 +72,9 @@ Future<void> _pump(
         streakRepositoryProvider.overrideWithValue(streaks),
         interactionRepositoryProvider.overrideWithValue(
           FakeInteractionRepository(),
+        ),
+        notificationRepositoryProvider.overrideWithValue(
+          FakeNotificationRepository(),
         ),
       ],
       child: const MutualsApp(),
