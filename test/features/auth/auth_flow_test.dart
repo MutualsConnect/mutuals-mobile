@@ -6,6 +6,7 @@ import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/auth/data/models/user_profile.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
+import 'package:mutuals/features/economy/data/economy_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
 import 'package:mutuals/main.dart';
@@ -68,6 +69,7 @@ Future<void> _pumpApp(WidgetTester tester, _FakeAuthRepository repo) async {
         notificationRepositoryProvider.overrideWithValue(
           FakeNotificationRepository(),
         ),
+        economyRepositoryProvider.overrideWithValue(FakeEconomyRepository()),
       ],
       child: const MutualsApp(),
     ),
@@ -128,6 +130,11 @@ void main() {
     await _pumpApp(tester, repo);
     await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Cerrar sesión'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Cerrar sesión'));
     await tester.pumpAndSettle();
     expect(repo.loggedOut, isTrue);

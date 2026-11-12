@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:mutuals/core/location/location_service.dart';
 import 'package:mutuals/core/network/api_exception.dart';
 import 'package:mutuals/core/network/page_response.dart';
+import 'package:mutuals/features/economy/data/economy_repository.dart';
+import 'package:mutuals/features/economy/data/models/economy_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
@@ -290,4 +292,83 @@ class FakeNotificationRepository extends NotificationRepository {
 
   @override
   Future<void> markAllRead() async => readAllCalls++;
+}
+
+WalletTransaction fakeTransaction({
+  int id = 1,
+  WalletCurrency currency = WalletCurrency.gems,
+  int amount = 10,
+  WalletTransactionType type = WalletTransactionType.earn,
+  String? counterparty,
+}) => WalletTransaction(
+  id: id,
+  currency: currency,
+  amount: amount,
+  type: type,
+  counterpartyUsername: counterparty,
+  createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+);
+
+/// Repositorio de economía falso con saldo y movimientos configurables.
+class FakeEconomyRepository extends EconomyRepository {
+  FakeEconomyRepository({
+    this.gems = 0,
+    this.shields = 0,
+    this.price = 20,
+    List<WalletTransaction> history = const [],
+    this.purchaseError,
+  }) : history = List.of(history),
+       super(Dio());
+
+  int gems;
+  int shields;
+  final int price;
+  final List<WalletTransaction> history;
+  final ApiException? purchaseError;
+
+  final purchases = <int>[];
+  final gifts = <int>[];
+
+  Wallet get _wallet =>
+      Wallet(gems: gems, shields: shields, shieldPriceGems: price);
+
+  @override
+  Future<Wallet> wallet() async => _wallet;
+
+  @override
+  Future<PageResponse<WalletTransaction>> transactions({int page = 0}) async {
+    const size = 2;
+    final start = page * size;
+    final end = (start + size).clamp(0, history.length);
+    return PageResponse(
+      content: start >= history.length ? [] : history.sublist(start, end),
+      page: page,
+      totalElements: history.length,
+      last: end >= history.length,
+    );
+  }
+
+  @override
+  Future<Wallet> purchaseShields(int quantity) async {
+    if (purchaseError != null) throw purchaseError!;
+    purchases.add(quantity);
+    gems -= quantity * price;
+    shields += quantity;
+    history.insert(
+      0,
+      fakeTransaction(
+        id: 99,
+        amount: -quantity * price,
+        type: WalletTransactionType.spend,
+      ),
+    );
+    return _wallet;
+  }
+
+  @override
+  Future<Wallet> giftShield(int friendId) async {
+    gifts.add(friendId);
+    shields -= 1;
+    return _wallet;
+  }
 }
