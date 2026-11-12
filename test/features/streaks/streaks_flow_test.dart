@@ -4,6 +4,7 @@ import 'package:mutuals/core/utils/date_format.dart';
 import 'package:mutuals/features/auth/data/auth_repository.dart';
 import 'package:mutuals/features/auth/data/models/user_profile.dart';
 import 'package:mutuals/features/social/data/models/social_models.dart';
+import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/streaks/data/models/streak_models.dart';
 import 'package:mutuals/features/streaks/data/streak_repository.dart';
@@ -68,6 +69,9 @@ Future<void> _pump(
         authRepositoryProvider.overrideWithValue(_Auth()),
         socialRepositoryProvider.overrideWithValue(social),
         streakRepositoryProvider.overrideWithValue(streaks),
+        interactionRepositoryProvider.overrideWithValue(
+          FakeInteractionRepository(),
+        ),
       ],
       child: const MutualsApp(),
     ),
@@ -152,6 +156,8 @@ void main() {
     expect(find.text('Racha con Luis Vega'), findsOneWidget);
     expect(find.text('Empezó'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Activar escudo (2)'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Activar escudo (2)'));
     await tester.pumpAndSettle();
     expect(streaks.shieldArmedCalls, 1);
