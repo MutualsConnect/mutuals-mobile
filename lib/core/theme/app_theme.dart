@@ -4,23 +4,24 @@ import 'app_colors.dart';
 
 abstract final class AppTheme {
   static ThemeData get light {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.peach,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: AppColors.peach,
-      onPrimary: AppColors.ink,
-      primaryContainer: AppColors.peachLight,
-      onPrimaryContainer: AppColors.ink,
-      secondary: AppColors.sky,
-      onSecondary: AppColors.ink,
-      secondaryContainer: AppColors.sky,
-      onSecondaryContainer: AppColors.ink,
-      surface: AppColors.cream,
-      onSurface: AppColors.ink,
-      onSurfaceVariant: AppColors.inkSoft,
-      error: AppColors.danger,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: AppColors.peach,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: AppColors.peach,
+          onPrimary: AppColors.ink,
+          primaryContainer: AppColors.peachLight,
+          onPrimaryContainer: AppColors.ink,
+          secondary: AppColors.sky,
+          onSecondary: AppColors.ink,
+          secondaryContainer: AppColors.sky,
+          onSecondaryContainer: AppColors.ink,
+          surface: AppColors.cream,
+          onSurface: AppColors.ink,
+          onSurfaceVariant: AppColors.inkSoft,
+          error: AppColors.danger,
+        );
 
     final textTheme = ThemeData.light().textTheme.apply(
       bodyColor: AppColors.ink,
@@ -60,10 +61,24 @@ abstract final class AppTheme {
           ),
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.cream,
+        indicatorColor: AppColors.peach,
+        surfaceTintColor: Colors.transparent,
+        height: 68,
+        labelTextStyle: WidgetStatePropertyAll(
+          textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        iconTheme: const WidgetStatePropertyAll(
+          IconThemeData(color: AppColors.ink),
+        ),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.ink,
-          textStyle: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          textStyle: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

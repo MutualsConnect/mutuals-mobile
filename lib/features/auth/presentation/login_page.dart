@@ -41,7 +41,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _error = null;
     });
     try {
-      await ref.read(authControllerProvider.notifier).login(_email.text, _password.text);
+      await ref
+          .read(authControllerProvider.notifier)
+          .login(_email.text, _password.text);
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
@@ -64,7 +66,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const BrandHeader(subtitle: 'Rachas reales con tus amigos de verdad'),
+                    const BrandHeader(
+                      subtitle: 'Rachas reales con tus amigos de verdad',
+                    ),
                     const SizedBox(height: 36),
                     if (_error != null) ...[
                       ErrorBanner(_error!),
@@ -95,7 +99,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    LoadingButton(label: 'Iniciar sesión', loading: _loading, onPressed: _submit),
+                    LoadingButton(
+                      label: 'Iniciar sesión',
+                      loading: _loading,
+                      onPressed: _submit,
+                    ),
                     const SizedBox(height: 20),
                     Wrap(
                       alignment: WrapAlignment.center,

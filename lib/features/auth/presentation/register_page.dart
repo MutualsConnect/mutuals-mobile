@@ -55,7 +55,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       _error = null;
     });
     try {
-      await ref.read(authControllerProvider.notifier).register(
+      await ref
+          .read(authControllerProvider.notifier)
+          .register(
             email: _email.text,
             username: _username.text,
             displayName: _displayName.text,
@@ -96,7 +98,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   children: [
                     Text(
                       'Crea tu cuenta',
-                      style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
+                      style: text.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -110,7 +114,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ],
                     TextFormField(
                       controller: _displayName,
-                      validator: (v) => _check('displayName', Validators.displayName(v)),
+                      validator: (v) =>
+                          _check('displayName', Validators.displayName(v)),
                       onChanged: (_) => _clearServerError('displayName'),
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
@@ -122,7 +127,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _username,
-                      validator: (v) => _check('username', Validators.username(v)),
+                      validator: (v) =>
+                          _check('username', Validators.username(v)),
                       onChanged: (_) => _clearServerError('username'),
                       textInputAction: TextInputAction.next,
                       autocorrect: false,
@@ -147,7 +153,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     const SizedBox(height: 14),
                     PasswordField(
                       controller: _password,
-                      validator: (v) => _check('password', Validators.strongPassword(v)),
+                      validator: (v) =>
+                          _check('password', Validators.strongPassword(v)),
                       onChanged: (_) => _clearServerError('password'),
                       onSubmitted: _submit,
                     ),
@@ -157,7 +164,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       style: text.bodySmall,
                     ),
                     const SizedBox(height: 24),
-                    LoadingButton(label: 'Crear cuenta', loading: _loading, onPressed: _submit),
+                    LoadingButton(
+                      label: 'Crear cuenta',
+                      loading: _loading,
+                      onPressed: _submit,
+                    ),
                     const SizedBox(height: 16),
                   ],
                 ),

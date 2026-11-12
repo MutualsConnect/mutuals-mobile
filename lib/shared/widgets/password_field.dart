@@ -40,7 +40,9 @@ class _PasswordFieldState extends State<PasswordField> {
         prefixIcon: const Icon(Icons.lock_outline),
         suffixIcon: IconButton(
           tooltip: _hidden ? 'Mostrar contraseña' : 'Ocultar contraseña',
-          icon: Icon(_hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+          icon: Icon(
+            _hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          ),
           onPressed: () => setState(() => _hidden = !_hidden),
         ),
       ),
