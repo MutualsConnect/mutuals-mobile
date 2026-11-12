@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Mutuals usa la cámara para escanear el código QR de tu amigo y confirmar la racha.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Mutuals usa tu ubicación solo para comprobar que estás cerca de tu amigo. Se borra a los pocos minutos.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
