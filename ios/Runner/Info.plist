@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Mutuals necesita tu galería para que puedas adjuntar una foto a un desafío.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Mutuals usa la cámara para escanear el código QR de tu amigo y confirmar la racha.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
