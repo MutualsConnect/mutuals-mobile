@@ -12,6 +12,9 @@ import '../../features/social/presentation/mutuals_page.dart';
 import '../../features/social/presentation/my_profile_page.dart';
 import '../../features/social/presentation/profile_page.dart';
 import '../../features/social/presentation/search_page.dart';
+import '../../features/streaks/presentation/history_page.dart';
+import '../../features/streaks/presentation/invitations_page.dart';
+import '../../features/streaks/presentation/streak_detail_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
 
 abstract final class Routes {
@@ -35,7 +38,10 @@ class _AuthRefresh extends ChangeNotifier {
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = _AuthRefresh();
   ref.onDispose(refresh.dispose);
-  ref.listen(authControllerProvider.select((s) => s.status), (_, _) => refresh.ping());
+  ref.listen(
+    authControllerProvider.select((s) => s.status),
+    (_, _) => refresh.ping(),
+  );
 
   return GoRouter(
     initialLocation: Routes.splash,
@@ -49,7 +55,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         case AuthStatus.unauthenticated:
           return Routes._public.contains(path) ? null : Routes.login;
         case AuthStatus.authenticated:
-          final inAuthFlow = path == Routes.splash || Routes._public.contains(path);
+          final inAuthFlow =
+              path == Routes.splash || Routes._public.contains(path);
           return inAuthFlow ? Routes.home : null;
       }
     },
@@ -64,23 +71,48 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.home, builder: (_, _) => const HomePage()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.mutuals, builder: (_, _) => const MutualsPage()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.search, builder: (_, _) => const SearchPage()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.me, builder: (_, _) => const MyProfilePage()),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: Routes.home, builder: (_, _) => const HomePage()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.mutuals,
+                builder: (_, _) => const MutualsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.search,
+                builder: (_, _) => const SearchPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.me,
+                builder: (_, _) => const MyProfilePage(),
+              ),
+            ],
+          ),
         ],
+      ),
+      GoRoute(path: '/invitations', builder: (_, _) => const InvitationsPage()),
+      GoRoute(path: '/history', builder: (_, _) => const HistoryPage()),
+      GoRoute(
+        path: '/streaks/:id',
+        builder: (_, state) =>
+            StreakDetailPage(streakId: int.parse(state.pathParameters['id']!)),
       ),
       GoRoute(
         path: '/users/:id',
-        builder: (_, state) => ProfilePage(userId: int.parse(state.pathParameters['id']!)),
+        builder: (_, state) =>
+            ProfilePage(userId: int.parse(state.pathParameters['id']!)),
       ),
     ],
   );

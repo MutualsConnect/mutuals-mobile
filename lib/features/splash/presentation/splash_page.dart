@@ -19,7 +19,10 @@ class SplashPage extends StatelessWidget {
             SizedBox(
               width: 26,
               height: 26,
-              child: CircularProgressIndicator(strokeWidth: 3, color: AppColors.peach),
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: AppColors.peach,
+              ),
             ),
           ],
         ),

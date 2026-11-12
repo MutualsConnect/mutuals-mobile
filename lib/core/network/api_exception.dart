@@ -54,6 +54,7 @@ class ApiException implements Exception {
 
 extension DioExceptionX on DioException {
   /// El [ApiException] asociado, aunque el error no haya pasado por el interceptor.
-  ApiException get apiException =>
-      error is ApiException ? error as ApiException : ApiException.fromDio(this);
+  ApiException get apiException => error is ApiException
+      ? error as ApiException
+      : ApiException.fromDio(this);
 }

@@ -3,11 +3,11 @@ import '../../../social/data/models/social_models.dart';
 enum InvitationStatus { pending, accepted, rejected, canceled }
 
 InvitationStatus _invitationStatus(String raw) => switch (raw) {
-      'ACCEPTED' => InvitationStatus.accepted,
-      'REJECTED' => InvitationStatus.rejected,
-      'CANCELED' => InvitationStatus.canceled,
-      _ => InvitationStatus.pending,
-    };
+  'ACCEPTED' => InvitationStatus.accepted,
+  'REJECTED' => InvitationStatus.rejected,
+  'CANCELED' => InvitationStatus.canceled,
+  _ => InvitationStatus.pending,
+};
 
 /// Invitación para empezar una racha (`InvitationResponse`).
 class StreakInvitation {
@@ -25,7 +25,8 @@ class StreakInvitation {
   final InvitationStatus status;
   final DateTime createdAt;
 
-  factory StreakInvitation.fromJson(Map<String, dynamic> json) => StreakInvitation(
+  factory StreakInvitation.fromJson(Map<String, dynamic> json) =>
+      StreakInvitation(
         id: (json['id'] as num).toInt(),
         inviter: UserSummary.fromJson(json['inviter'] as Map<String, dynamic>),
         invitee: UserSummary.fromJson(json['invitee'] as Map<String, dynamic>),
@@ -69,20 +70,23 @@ class StreakDetail {
   bool get isActive => status == StreakStatus.active;
 
   factory StreakDetail.fromJson(Map<String, dynamic> json) => StreakDetail(
-        id: (json['id'] as num).toInt(),
-        friend: UserSummary.fromJson(json['friend'] as Map<String, dynamic>),
-        status: json['status'] == 'ACTIVE' ? StreakStatus.active : StreakStatus.broken,
-        currentLength: (json['currentLength'] as num).toInt(),
-        startDate: DateTime.parse(json['startDate'] as String),
-        endDate: _date(json['endDate']),
-        lastActiveDate: _date(json['lastActiveDate']),
-        countedToday: json['countedToday'] as bool? ?? false,
-        shieldArmed: json['shieldArmed'] as bool? ?? false,
-        shieldsUsed: (json['shieldsUsed'] as num?)?.toInt() ?? 0,
-        pure: json['pure'] as bool? ?? false,
-      );
+    id: (json['id'] as num).toInt(),
+    friend: UserSummary.fromJson(json['friend'] as Map<String, dynamic>),
+    status: json['status'] == 'ACTIVE'
+        ? StreakStatus.active
+        : StreakStatus.broken,
+    currentLength: (json['currentLength'] as num).toInt(),
+    startDate: DateTime.parse(json['startDate'] as String),
+    endDate: _date(json['endDate']),
+    lastActiveDate: _date(json['lastActiveDate']),
+    countedToday: json['countedToday'] as bool? ?? false,
+    shieldArmed: json['shieldArmed'] as bool? ?? false,
+    shieldsUsed: (json['shieldsUsed'] as num?)?.toInt() ?? 0,
+    pure: json['pure'] as bool? ?? false,
+  );
 
-  static DateTime? _date(Object? v) => v == null ? null : DateTime.parse(v as String);
+  static DateTime? _date(Object? v) =>
+      v == null ? null : DateTime.parse(v as String);
 }
 
 /// Rachas con un amigo, actuales y pasadas (`StreakHistoryResponse`).
@@ -102,12 +106,12 @@ class StreakHistory {
   final List<StreakDetail> streaks;
 
   factory StreakHistory.fromJson(Map<String, dynamic> json) => StreakHistory(
-        friend: UserSummary.fromJson(json['friend'] as Map<String, dynamic>),
-        currentlyMutual: json['currentlyMutual'] as bool? ?? false,
-        totalStreaks: (json['totalStreaks'] as num?)?.toInt() ?? 0,
-        bestLength: (json['bestLength'] as num?)?.toInt() ?? 0,
-        streaks: (json['streaks'] as List? ?? const [])
-            .map((e) => StreakDetail.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    friend: UserSummary.fromJson(json['friend'] as Map<String, dynamic>),
+    currentlyMutual: json['currentlyMutual'] as bool? ?? false,
+    totalStreaks: (json['totalStreaks'] as num?)?.toInt() ?? 0,
+    bestLength: (json['bestLength'] as num?)?.toInt() ?? 0,
+    streaks: (json['streaks'] as List? ?? const [])
+        .map((e) => StreakDetail.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }

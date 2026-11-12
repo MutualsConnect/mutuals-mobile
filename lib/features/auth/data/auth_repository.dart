@@ -15,21 +15,22 @@ class AuthRepository {
   Future<UserProfile> login({
     required String email,
     required String password,
-  }) =>
-      _authenticate('/auth/login', {'email': email.trim(), 'password': password});
+  }) => _authenticate('/auth/login', {
+    'email': email.trim(),
+    'password': password,
+  });
 
   Future<UserProfile> register({
     required String email,
     required String username,
     required String displayName,
     required String password,
-  }) =>
-      _authenticate('/auth/register', {
-        'email': email.trim(),
-        'username': username.trim(),
-        'displayName': displayName.trim(),
-        'password': password,
-      });
+  }) => _authenticate('/auth/register', {
+    'email': email.trim(),
+    'username': username.trim(),
+    'displayName': displayName.trim(),
+    'password': password,
+  });
 
   /// Si hay una sesión guardada, devuelve el usuario; si no, `null`.
   Future<UserProfile?> restoreSession() async {
@@ -58,11 +59,18 @@ class AuthRepository {
     }
   }
 
-  Future<void> requestPasswordReset(String email) =>
-      _guard(() => _dio.post<void>('/auth/password-reset', data: {'email': email.trim()}));
+  Future<void> requestPasswordReset(String email) => _guard(
+    () =>
+        _dio.post<void>('/auth/password-reset', data: {'email': email.trim()}),
+  );
 
-  Future<UserProfile> _authenticate(String path, Map<String, dynamic> body) async {
-    final data = await _guard(() => _dio.post<Map<String, dynamic>>(path, data: body));
+  Future<UserProfile> _authenticate(
+    String path,
+    Map<String, dynamic> body,
+  ) async {
+    final data = await _guard(
+      () => _dio.post<Map<String, dynamic>>(path, data: body),
+    );
     await _tokens.save(
       accessToken: data!['accessToken'] as String,
       refreshToken: data['refreshToken'] as String,
@@ -80,5 +88,6 @@ class AuthRepository {
 }
 
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => AuthRepository(ref.watch(dioProvider), ref.watch(tokenStorageProvider)),
+  (ref) =>
+      AuthRepository(ref.watch(dioProvider), ref.watch(tokenStorageProvider)),
 );

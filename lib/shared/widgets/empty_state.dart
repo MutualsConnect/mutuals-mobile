@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.emoji, required this.title, this.message});
+  const EmptyState({
+    super.key,
+    required this.emoji,
+    required this.title,
+    this.message,
+  });
 
   final String emoji;
   final String title;
@@ -20,10 +25,18 @@ class EmptyState extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 56)),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
             if (message != null) ...[
               const SizedBox(height: 6),
-              Text(message!, textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: AppColors.inkSoft)),
+              Text(
+                message!,
+                textAlign: TextAlign.center,
+                style: text.bodyMedium?.copyWith(color: AppColors.inkSoft),
+              ),
             ],
           ],
         ),

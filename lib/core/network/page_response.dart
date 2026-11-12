@@ -15,13 +15,12 @@ class PageResponse<T> {
   factory PageResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) fromItem,
-  ) =>
-      PageResponse(
-        content: (json['content'] as List)
-            .map((e) => fromItem(e as Map<String, dynamic>))
-            .toList(),
-        page: (json['page'] as num).toInt(),
-        totalElements: (json['totalElements'] as num).toInt(),
-        last: json['last'] as bool,
-      );
+  ) => PageResponse(
+    content: (json['content'] as List)
+        .map((e) => fromItem(e as Map<String, dynamic>))
+        .toList(),
+    page: (json['page'] as num).toInt(),
+    totalElements: (json['totalElements'] as num).toInt(),
+    last: json['last'] as bool,
+  );
 }
