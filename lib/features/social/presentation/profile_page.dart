@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
@@ -7,6 +8,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../streaks/data/streak_repository.dart';
 import '../data/models/social_models.dart';
+import '../data/profile_repository.dart';
 import '../data/social_repository.dart';
 
 /// Perfil público de otro usuario, con el botón de seguir.
@@ -19,7 +21,11 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider(userId));
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          if (profile.hasValue) _ProfileMenu(profile: profile.requireValue),
+        ],
+      ),
       body: profile.when(
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.peach),
@@ -243,6 +249,161 @@ class _Stat extends StatelessWidget {
               style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
             ),
             Text(label, style: text.bodySmall),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Menú con las acciones de seguridad: bloquear y reportar.
+class _ProfileMenu extends ConsumerWidget {
+  const _ProfileMenu({required this.profile});
+
+  final PublicProfile profile;
+
+  Future<void> _block(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¿Bloquear a ${profile.displayName}?'),
+        content: const Text(
+          'No podrán verse ni interactuar. Si tenían una racha, se perderá.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Bloquear'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await ref.read(profileRepositoryProvider).block(profile.id);
+      ref.invalidate(mutualsProvider);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Bloqueaste a ${profile.displayName}')),
+      );
+      router.pop();
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  Future<void> _report(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await showModalBottomSheet<(ReportReason, String)>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cream,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => _ReportSheet(name: profile.displayName),
+    );
+    if (result == null) return;
+    try {
+      await ref
+          .read(profileRepositoryProvider)
+          .report(profile.id, result.$1, description: result.$2);
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Reporte enviado. Gracias por avisar.')),
+      );
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PopupMenuButton<String>(
+      tooltip: 'Más opciones',
+      onSelected: (value) =>
+          value == 'block' ? _block(context, ref) : _report(context, ref),
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: 'report', child: Text('Reportar')),
+        PopupMenuItem(value: 'block', child: Text('Bloquear')),
+      ],
+    );
+  }
+}
+
+class _ReportSheet extends StatefulWidget {
+  const _ReportSheet({required this.name});
+
+  final String name;
+
+  @override
+  State<_ReportSheet> createState() => _ReportSheetState();
+}
+
+class _ReportSheetState extends State<_ReportSheet> {
+  ReportReason? _reason;
+  final _description = TextEditingController();
+
+  @override
+  void dispose() {
+    _description.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        20,
+        20,
+        20,
+        20 + MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Reportar a ${widget.name}',
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 8),
+            RadioGroup<ReportReason>(
+              groupValue: _reason,
+              onChanged: (v) => setState(() => _reason = v),
+              child: Column(
+                children: [
+                  for (final r in ReportReason.values)
+                    RadioListTile<ReportReason>(
+                      contentPadding: EdgeInsets.zero,
+                      activeColor: AppColors.ink,
+                      title: Text(r.label),
+                      value: r,
+                    ),
+                ],
+              ),
+            ),
+            TextField(
+              controller: _description,
+              maxLength: 500,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                hintText: 'Cuéntanos más (opcional)',
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: _reason == null
+                  ? null
+                  : () => Navigator.pop(context, (_reason!, _description.text)),
+              child: const Text('Enviar reporte'),
+            ),
           ],
         ),
       ),

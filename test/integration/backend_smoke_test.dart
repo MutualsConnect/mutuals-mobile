@@ -17,6 +17,7 @@ import 'package:mutuals/features/interactions/data/interaction_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
+import 'package:mutuals/features/social/data/profile_repository.dart';
 import 'package:mutuals/features/social/data/social_repository.dart';
 import 'package:mutuals/features/subscription/data/models/subscription_models.dart';
 import 'package:mutuals/features/subscription/data/subscription_repository.dart';
@@ -854,4 +855,77 @@ void main() {
       expect(stats.newMutuals, 3);
     });
   });
+
+  group(
+    'perfil, bloqueos y reportes en el backend real',
+    skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar',
+    () {
+      Future<(ProfileRepository, SocialRepository, AuthRepository, int)> user(
+        String name,
+      ) async {
+        final tokens = InMemoryTokenStorage();
+        final dio = createApiClient(
+          tokens: tokens,
+          onSessionExpired: () {},
+          baseUrl: 'http://localhost:8080/api/v1',
+        );
+        final id = DateTime.now().microsecondsSinceEpoch;
+        final auth = AuthRepository(dio, tokens);
+        final u = await auth.register(
+          email: '$name$id@example.com',
+          username: '$name$id',
+          displayName: 'User $name',
+          password: 'Prueba!2026x',
+        );
+        return (ProfileRepository(dio), SocialRepository(dio), auth, u.id);
+      }
+
+      test('editar el perfil cambia el nombre y la biografía', () async {
+        final (profile, _, auth, _) = await user('e1');
+        await profile.updateProfile(
+          displayName: '  Nombre Nuevo ',
+          bio: 'Mi bio de prueba',
+        );
+        final me = await auth.restoreSession();
+        expect(me?.displayName, 'Nombre Nuevo');
+        expect(me?.bio, 'Mi bio de prueba');
+      });
+
+      test('un nombre vacío se rechaza con error de campo', () async {
+        final (profile, _, _, _) = await user('e2');
+        await expectLater(
+          profile.updateProfile(displayName: '', bio: ''),
+          throwsA(
+            isA<ApiException>().having((e) => e.statusCode, 'status', 400),
+          ),
+        );
+      });
+
+      test(
+        'bloquear a un mutual lo quita de la lista y se puede desbloquear',
+        () async {
+          final (aProfile, aSocial, _, aId) = await user('e3a');
+          final (_, bSocial, _, bId) = await user('e3b');
+          await aSocial.follow(bId);
+          await bSocial.follow(aId);
+          expect(await aSocial.mutuals(), hasLength(1));
+
+          await aProfile.block(bId);
+          expect(await aSocial.mutuals(), isEmpty);
+
+          await aProfile.unblock(bId);
+        },
+      );
+
+      test('reportar a alguien se acepta', () async {
+        final (profile, _, _, _) = await user('e4a');
+        final (_, _, _, otherId) = await user('e4b');
+        await profile.report(
+          otherId,
+          ReportReason.spam,
+          description: 'Mensajes repetidos',
+        );
+      });
+    },
+  );
 }
