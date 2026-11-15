@@ -9,6 +9,9 @@ import '../../../shared/widgets/user_avatar.dart';
 import '../../streaks/data/streak_repository.dart';
 import '../data/models/social_models.dart';
 import '../data/social_repository.dart';
+import '../../../shared/motion/skeleton.dart';
+import '../../../shared/motion/fade_slide_in.dart';
+import '../../../shared/motion/press_scale.dart';
 
 class MutualsPage extends ConsumerWidget {
   const MutualsPage({super.key});
@@ -19,9 +22,7 @@ class MutualsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Mutuals')),
       body: mutuals.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.peach),
-        ),
+        loading: () => const SkeletonCards(count: 4, height: 104),
         error: (e, _) => ErrorState(
           message: e is ApiException
               ? e.message
@@ -46,7 +47,10 @@ class MutualsPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   itemCount: list.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, i) => _MutualTile(card: list[i]),
+                  itemBuilder: (context, i) => FadeSlideIn(
+                    index: i,
+                    child: PressScale(child: _MutualTile(card: list[i])),
+                  ),
                 ),
         ),
       ),

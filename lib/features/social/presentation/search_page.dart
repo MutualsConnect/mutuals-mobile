@@ -5,10 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_exception.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../data/social_repository.dart';
+import '../../../shared/motion/skeleton.dart';
+import '../../../shared/motion/fade_slide_in.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -79,9 +80,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     }
     final results = ref.watch(searchProvider(_query));
     return results.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: AppColors.peach),
-      ),
+      loading: () => const SkeletonCards(count: 4, height: 72),
       error: (e, _) => ErrorState(
         message: e is ApiException ? e.message : 'No se pudo buscar',
         onRetry: () => ref.invalidate(searchProvider(_query)),
@@ -100,21 +99,29 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           itemCount: page.content.length,
           itemBuilder: (context, i) {
             final user = page.content[i];
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
+            return FadeSlideIn(
+              index: i,
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                leading: UserAvatar(
+                  name: user.displayName,
+                  url: user.avatarUrl,
+                ),
+                title: Text(
+                  user.displayName,
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                subtitle: Text('@${user.username}'),
+                trailing: user.personalStreak > 0
+                    ? Text('🔥 ${user.personalStreak}')
+                    : null,
+                onTap: () => context.push('/users/${user.id}'),
               ),
-              leading: UserAvatar(name: user.displayName, url: user.avatarUrl),
-              title: Text(
-                user.displayName,
-                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              subtitle: Text('@${user.username}'),
-              trailing: user.personalStreak > 0
-                  ? Text('🔥 ${user.personalStreak}')
-                  : null,
-              onTap: () => context.push('/users/${user.id}'),
             );
           },
         );

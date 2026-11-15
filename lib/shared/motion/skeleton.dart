@@ -75,16 +75,27 @@ class SkeletonCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: Column(
-        children: [
-          for (var i = 0; i < count; i++) ...[
-            SkeletonBox(width: double.infinity, height: height, radius: 24),
-            const SizedBox(height: 12),
-          ],
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Si el espacio es limitado, solo mostramos las tarjetas que caben.
+        var visible = count;
+        if (constraints.hasBoundedHeight) {
+          final room = constraints.maxHeight - padding.vertical;
+          visible = (room / (height + 12)).floor().clamp(0, count);
+        }
+        return Padding(
+          padding: padding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < visible; i++) ...[
+                SkeletonBox(width: double.infinity, height: height, radius: 24),
+                const SizedBox(height: 12),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

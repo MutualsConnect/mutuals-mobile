@@ -8,6 +8,9 @@ import '../../../core/utils/date_format.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../data/models/notification_models.dart';
 import '../data/notification_repository.dart';
+import '../../../shared/motion/skeleton.dart';
+import '../../../shared/motion/fade_slide_in.dart';
+import '../../../shared/motion/press_scale.dart';
 
 /// Lista de notificaciones con filtro, paginación y marcar como leídas.
 class NotificationsPage extends ConsumerStatefulWidget {
@@ -177,11 +180,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   }
 
   Widget _body() {
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.peach),
-      );
-    }
+    if (_loading) return const SkeletonCards(count: 5, height: 84);
     if (_error != null) return ErrorState(message: _error!, onRetry: _load);
     return RefreshIndicator(
       color: AppColors.ink,
@@ -215,9 +214,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     ),
                   );
                 }
-                return _NotificationTile(
-                  notification: _items[i],
-                  onTap: () => _open(_items[i]),
+                return FadeSlideIn(
+                  index: i,
+                  child: PressScale(
+                    child: _NotificationTile(
+                      notification: _items[i],
+                      onTap: () => _open(_items[i]),
+                    ),
+                  ),
                 );
               },
             ),
