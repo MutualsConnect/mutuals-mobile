@@ -81,7 +81,8 @@ class SkeletonCards extends StatelessWidget {
         var visible = count;
         if (constraints.hasBoundedHeight) {
           final room = constraints.maxHeight - padding.vertical;
-          visible = (room / (height + 12)).floor().clamp(0, count);
+          // La última tarjeta no necesita el espacio de separación de abajo.
+          visible = ((room + 12) / (height + 12)).floor().clamp(0, count);
         }
         return Padding(
           padding: padding,
@@ -89,8 +90,8 @@ class SkeletonCards extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               for (var i = 0; i < visible; i++) ...[
+                if (i > 0) const SizedBox(height: 12),
                 SkeletonBox(width: double.infinity, height: height, radius: 24),
-                const SizedBox(height: 12),
               ],
             ],
           ),

@@ -11,6 +11,7 @@ import '../../auth/application/auth_controller.dart';
 import '../../social/data/social_repository.dart';
 import '../data/models/streak_models.dart';
 import '../data/streak_repository.dart';
+import '../../../shared/motion/animated_flame.dart';
 
 class StreakDetailPage extends ConsumerWidget {
   const StreakDetailPage({super.key, required this.streakId});
@@ -89,10 +90,9 @@ class _ContentState extends ConsumerState<_Content> {
           curve: Curves.easeOutCubic,
           builder: (context, value, _) => Column(
             children: [
-              Text(
-                s.isActive ? '🔥' : '🪦',
-                style: const TextStyle(fontSize: 88),
-              ),
+              s.isActive
+                  ? const AnimatedFlame(size: 88)
+                  : const Text('🪦', style: TextStyle(fontSize: 88)),
               Text(
                 '${value.round()}',
                 style: text.displayLarge?.copyWith(

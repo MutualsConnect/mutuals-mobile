@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../../shared/motion/animated_count.dart';
 
 /// Perfil de la persona que usa la app.
 class MyProfilePage extends ConsumerWidget {
@@ -193,8 +194,9 @@ class _Stat extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(
-              '$emoji $value',
+            AnimatedCount(
+              value: int.tryParse(value) ?? 0,
+              prefix: '$emoji ',
               style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
             ),
             Text(label, style: text.bodySmall),

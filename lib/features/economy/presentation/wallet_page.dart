@@ -11,6 +11,7 @@ import '../../social/data/models/social_models.dart';
 import '../../social/data/social_repository.dart';
 import '../data/economy_repository.dart';
 import '../data/models/economy_models.dart';
+import '../../../shared/motion/animated_count.dart';
 
 /// Billetera: saldo, compra de escudos, regalos e historial.
 class WalletPage extends ConsumerStatefulWidget {
@@ -311,8 +312,8 @@ class _Balance extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 34)),
             const SizedBox(height: 4),
-            Text(
-              '$value',
+            AnimatedCount(
+              value: value,
               style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
             ),
             Text(label, style: text.bodySmall),
