@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,6 +33,32 @@ import '../../features/streaks/presentation/history_page.dart';
 import '../../features/streaks/presentation/invitations_page.dart';
 import '../../features/streaks/presentation/streak_detail_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
+
+/// Página que sube desde abajo a pantalla completa (QR, escáner, historias).
+CustomTransitionPage<void> _slideUp(GoRouterState state, Widget child) =>
+    CustomTransitionPage<void>(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 380),
+      reverseTransitionDuration: const Duration(milliseconds: 300),
+      transitionsBuilder: (context, animation, secondary, child) {
+        final curve = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return SlideTransition(
+          position: Tween(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(curve),
+          child: FadeTransition(
+            opacity: Tween(begin: 0.6, end: 1.0).animate(curve),
+            child: child,
+          ),
+        );
+      },
+    );
 
 abstract final class Routes {
   static const splash = '/splash';
@@ -136,12 +162,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/wrapped', builder: (_, _) => const WrappedPage()),
       GoRoute(
         path: '/wrapped/all-time',
-        builder: (_, _) => const AllTimeWrappedPage(),
+        pageBuilder: (_, state) => _slideUp(state, const AllTimeWrappedPage()),
       ),
       GoRoute(
         path: '/wrapped/story',
-        builder: (_, state) =>
-            PeriodWrappedPage(summary: state.extra! as WrappedSummary),
+        pageBuilder: (_, state) => _slideUp(
+          state,
+          PeriodWrappedPage(summary: state.extra! as WrappedSummary),
+        ),
       ),
       GoRoute(path: '/plus', builder: (_, _) => const PlusPage()),
       GoRoute(
@@ -161,15 +189,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           challengeId: int.parse(state.pathParameters['id']!),
         ),
       ),
-      GoRoute(path: '/qr', builder: (_, _) => const MyQrPage()),
-      GoRoute(path: '/scan', builder: (_, _) => const ScanQrPage()),
+      GoRoute(
+        path: '/qr',
+        pageBuilder: (_, state) => _slideUp(state, const MyQrPage()),
+      ),
+      GoRoute(
+        path: '/scan',
+        pageBuilder: (_, state) => _slideUp(state, const ScanQrPage()),
+      ),
       GoRoute(
         path: '/pending',
         builder: (_, _) => const PendingInteractionsPage(),
       ),
       GoRoute(
         path: '/check-in',
-        builder: (_, state) => CheckInPage(friend: state.extra! as UserSummary),
+        pageBuilder: (_, state) =>
+            _slideUp(state, CheckInPage(friend: state.extra! as UserSummary)),
       ),
       GoRoute(path: '/invitations', builder: (_, _) => const InvitationsPage()),
       GoRoute(path: '/history', builder: (_, _) => const HistoryPage()),
