@@ -33,6 +33,8 @@ import '../../features/streaks/presentation/history_page.dart';
 import '../../features/streaks/presentation/invitations_page.dart';
 import '../../features/streaks/presentation/streak_detail_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
+import '../../features/moments/presentation/memories_page.dart';
+import '../../features/moments/presentation/moment_page.dart';
 
 /// Página que sube desde abajo a pantalla completa (QR, escáner, historias).
 CustomTransitionPage<void> _slideUp(GoRouterState state, Widget child) =>
@@ -187,6 +189,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/challenges/:id',
         builder: (_, state) => ChallengeDetailPage(
           challengeId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(path: '/moments', builder: (_, _) => const MemoriesPage()),
+      GoRoute(
+        path: '/moments/:id',
+        pageBuilder: (_, state) => _slideUp(
+          state,
+          MomentPage(momentId: int.parse(state.pathParameters['id']!)),
         ),
       ),
       GoRoute(

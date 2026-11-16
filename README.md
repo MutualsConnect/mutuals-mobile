@@ -26,7 +26,8 @@ Cubre las funciones principales de la API del backend (el panel de administraci�
 | **Cuenta** | Registro, inicio de sesión, recuperar contraseña, sesión que se restaura sola y renovación automática de tokens |
 | **Social** | Buscar personas, seguir, dejar de seguir (con aviso si hay una racha activa), perfil público, lista de mutuals, editar tu perfil, bloquear y reportar |
 | **Rachas** | Invitaciones (enviar, aceptar, rechazar, cancelar), rachas activas en el inicio, detalle con contador animado, escudos e historial |
-| **Interacciones** | Confirmación manual con nota, **código QR rotativo** (mostrar y escanear) y **proximidad por GPS**; confirmar o rechazar lo que registran tus amigos |
+| **Interacciones** | Confirmación manual con nota, **código QR rotativo** (mostrar y escanear), **proximidad por GPS** y **momentos de foto**; confirmar o rechazar lo que registran tus amigos |
+| **Momentos de foto** | Una persona lanza un momento y las dos tienen 2 minutos para tomar una foto de lo que hacen; al llegar ambas, la racha se confirma sola y se revelan las fotos juntas. Los momentos completados quedan en **Recuerdos** |
 | **Notificaciones** | Lista paginada con filtro de importantes, contador de no leídas en la campana y acceso directo a cada pantalla |
 | **Economía** | Billetera de gemas y escudos, compra de escudos, regalos a mutuals e historial |
 | **Gamificación** | Logros, tienda de avatar por capas y desafíos semanales (texto y foto) |
@@ -89,14 +90,15 @@ flutter test                    # pruebas de pantallas y lógica, sin red
 MUTUALS_E2E=1 flutter test test/integration/backend_smoke_test.dart
 ```
 
-- **88 pruebas** de pantallas y lógica con repositorios simulados.
-- **28 pruebas de integración** contra el backend real (opcionales): registro, rachas, interacciones por QR y
-  proximidad, notificaciones, billetera, desafíos, feed, Wrapped, Plus, perfil, bloqueos y reportes. Requieren el backend en `localhost:8080`
+- **121 pruebas** de pantallas y lógica con repositorios simulados.
+- **31 pruebas de integración** contra el backend real (opcionales): registro, rachas, interacciones por QR y
+  proximidad, momentos de foto, notificaciones, billetera, desafíos, feed, Wrapped, Plus, perfil, bloqueos y reportes. Requieren el backend en `localhost:8080`
   y el contenedor de PostgreSQL del `docker-compose` del backend.
 - GitHub Actions ejecuta el análisis y las pruebas en cada push y pull request.
 
 ## Estado y límites conocidos
 
+- **Momentos de foto:** requieren el backend con el endpoint `/moments` (PR de `mutuals-backend`). Sin push, la otra persona ve el aviso **cuando tiene la app abierta** (se consulta cada pocos segundos). La cámara real solo se prueba en un teléfono; en el simulador se usa la galería.
 - **Notificaciones push (Firebase):** pendientes; requieren el proyecto de Firebase del equipo
   (`google-services.json`, `GoogleService-Info.plist` y la cuenta de servicio del backend). Las notificaciones dentro
   de la app funcionan completas.

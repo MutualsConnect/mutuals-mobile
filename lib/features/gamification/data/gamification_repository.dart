@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/media/photo_upload.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/providers.dart';
 import 'models/gamification_models.dart';
@@ -58,7 +59,7 @@ class GamificationRepository {
   }) async {
     final form = FormData.fromMap({
       if (content != null && content.isNotEmpty) 'content': content,
-      if (photoPath != null) 'photo': await MultipartFile.fromFile(photoPath),
+      if (photoPath != null) 'photo': await photoPart(photoPath),
     });
     return Challenge.fromJson(
       (await _guard(

@@ -13,6 +13,7 @@ import '../../../shared/widgets/user_avatar.dart';
 import '../../auth/application/auth_controller.dart';
 import '../data/gamification_repository.dart';
 import '../data/models/gamification_models.dart';
+import '../../../core/network/api_config.dart';
 
 /// Desafíos de esta semana con tus mutuals.
 class ChallengesPage extends ConsumerWidget {
@@ -366,7 +367,7 @@ class _SubmissionTile extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: Image.network(
-                  s.photoUrl!,
+                  ApiConfig.mediaUrl(s.photoUrl!),
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,

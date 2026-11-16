@@ -74,6 +74,7 @@ class AppNotification {
     'ACTIVITY_COMMENTED' => '💬',
     'WRAPPED_READY' => '🎬',
     'SUBSCRIPTION' => '⭐',
+    'MOMENT_STARTED' => '📸',
     _ => '🔔',
   };
 
@@ -86,6 +87,7 @@ class AppNotification {
       'STREAK' => '/streaks/$id',
       'STREAK_INVITATION' => '/invitations',
       'INTERACTION' => '/pending',
+      'MOMENT' => '/moments/$id',
       _ => null,
     };
   }
