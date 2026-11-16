@@ -28,6 +28,7 @@ Cubre las funciones principales de la API del backend (el panel de administraci�
 | **Rachas** | Invitaciones (enviar, aceptar, rechazar, cancelar), rachas activas en el inicio, detalle con contador animado, escudos e historial |
 | **Interacciones** | Confirmación manual con nota, **código QR rotativo** (mostrar y escanear), **proximidad por GPS** y **momentos de foto**; confirmar o rechazar lo que registran tus amigos |
 | **Momentos de foto** | Una persona lanza un momento y las dos tienen 2 minutos para tomar una foto de lo que hacen; al llegar ambas, la racha se confirma sola y se revelan las fotos juntas. Los momentos completados quedan en **Recuerdos** |
+| **Ajustes** | Preferencias de notificaciones y privacidad, dispositivos registrados y eliminar la cuenta |
 | **Notificaciones** | Lista paginada con filtro de importantes, contador de no leídas en la campana y acceso directo a cada pantalla |
 | **Economía** | Billetera de gemas y escudos, compra de escudos, regalos a mutuals e historial |
 | **Gamificación** | Logros, tienda de avatar por capas y desafíos semanales (texto y foto) |
@@ -90,7 +91,7 @@ flutter test                    # pruebas de pantallas y lógica, sin red
 MUTUALS_E2E=1 flutter test test/integration/backend_smoke_test.dart
 ```
 
-- **121 pruebas** de pantallas y lógica con repositorios simulados.
+- **125 pruebas** de pantallas y lógica con repositorios simulados.
 - **31 pruebas de integración** contra el backend real (opcionales): registro, rachas, interacciones por QR y
   proximidad, momentos de foto, notificaciones, billetera, desafíos, feed, Wrapped, Plus, perfil, bloqueos y reportes. Requieren el backend en `localhost:8080`
   y el contenedor de PostgreSQL del `docker-compose` del backend.
@@ -107,8 +108,8 @@ MUTUALS_E2E=1 flutter test test/integration/backend_smoke_test.dart
 - **Android:** el proyecto está configurado (permisos, ícono y pantalla de inicio), pero las pruebas visuales se
   hicieron en el simulador de iPhone.
 - El backend aún no entrega imágenes para los ítems de avatar, así que se representan con emojis.
-- **Pendiente en la app:** preferencias y dispositivos, personalización del perfil con temas (Plus), eliminar la cuenta y
-  cambiar la foto de perfil. Restablecer la contraseña se completa desde el enlace del correo.
+- **Pendiente en la app:** personalización del perfil con temas (Plus) y cambiar la foto de perfil (el backend aún no
+  tiene endpoint para subirla). Restablecer la contraseña se completa desde el enlace del correo.
 
 ## Autoría y repositorios
 

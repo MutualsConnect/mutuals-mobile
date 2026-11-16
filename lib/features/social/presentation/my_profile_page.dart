@@ -164,6 +164,15 @@ class MyProfilePage extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => context.push('/history'),
           ),
+          ListTile(
+            leading: const Text('⚙️', style: TextStyle(fontSize: 24)),
+            title: const Text(
+              'Ajustes',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/settings'),
+          ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
