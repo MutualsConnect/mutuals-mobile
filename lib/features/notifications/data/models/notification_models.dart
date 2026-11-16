@@ -74,6 +74,7 @@ class AppNotification {
     'ACTIVITY_COMMENTED' => '💬',
     'WRAPPED_READY' => '🎬',
     'SUBSCRIPTION' => '⭐',
+    'MOMENT_STARTED' => '📸',
     _ => '🔔',
   };
 

@@ -291,6 +291,28 @@ void main() {
     expect(find.text('Enviar foto'), findsOneWidget); // puede intentar de nuevo
   });
 
+  testWidgets(
+    'también se puede elegir la foto de la galería, sin abrir la cámara',
+    (tester) async {
+      final repo = FakeMomentRepository(moments: [fakeMoment()]);
+      await _pump(
+        tester,
+        repo,
+        picker: FakePhotoPicker(
+          '/tmp/galeria.jpg',
+          cameraPath: '/tmp/camara.jpg',
+        ),
+      );
+      await _openFromBanner(tester);
+
+      await tester.tap(find.text('Elegir de la galería'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Enviar foto'));
+      await tester.pumpAndSettle();
+      expect(repo.submissions.single.path, '/tmp/galeria.jpg');
+    },
+  );
+
   group('lanzar un momento desde Registrar hoy', () {
     Future<void> openCheckIn(WidgetTester tester) async {
       await tester.tap(find.text('Luis Vega'));

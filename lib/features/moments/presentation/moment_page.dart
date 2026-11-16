@@ -76,6 +76,12 @@ class _MomentPageState extends ConsumerState<MomentPage> {
     }
   }
 
+  /// Alternativa a la cámara: sin cámara (simulador, iPad) o si denegaron el permiso.
+  Future<void> _pickFromGallery() async {
+    final path = await ref.read(photoPickerProvider).pick();
+    if (path != null && mounted) setState(() => _photoPath = path);
+  }
+
   Future<void> _submit() async {
     final path = _photoPath;
     if (path == null) return;
@@ -169,6 +175,7 @@ class _MomentPageState extends ConsumerState<MomentPage> {
             submitting: _submitting,
             error: _error,
             onTake: _takePhoto,
+            onGallery: _pickFromGallery,
             onRetake: () => setState(() => _photoPath = null),
             onSubmit: _submit,
           );
@@ -186,6 +193,7 @@ class _CaptureView extends StatelessWidget {
     required this.submitting,
     required this.error,
     required this.onTake,
+    required this.onGallery,
     required this.onRetake,
     required this.onSubmit,
   });
@@ -199,6 +207,7 @@ class _CaptureView extends StatelessWidget {
   final bool submitting;
   final String? error;
   final VoidCallback onTake;
+  final VoidCallback onGallery;
   final VoidCallback onRetake;
   final VoidCallback onSubmit;
 
@@ -299,13 +308,22 @@ class _CaptureView extends StatelessWidget {
                       ),
                     ],
                   )
-                : FilledButton.icon(
-                    onPressed: onTake,
-                    icon: const Icon(Icons.photo_camera_rounded),
-                    label: const Text('Tomar foto'),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(64),
-                    ),
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FilledButton.icon(
+                        onPressed: onTake,
+                        icon: const Icon(Icons.photo_camera_rounded),
+                        label: const Text('Tomar foto'),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(64),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: onGallery,
+                        child: const Text('Elegir de la galería'),
+                      ),
+                    ],
                   ),
           ),
         ),
