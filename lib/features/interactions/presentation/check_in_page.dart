@@ -11,6 +11,7 @@ import '../../social/data/social_repository.dart';
 import '../data/interaction_repository.dart';
 import '../data/models/interaction_models.dart';
 import 'check_in_success.dart';
+import '../../moments/data/moment_repository.dart';
 
 /// Elige cómo registrar la interacción de hoy con un amigo.
 class CheckInPage extends ConsumerStatefulWidget {
@@ -41,6 +42,49 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Lanza un momento de foto: ambos tienen unos minutos para tomar una foto y la racha se confirma sola.
+  Future<void> _photoMoment() async {
+    final name = widget.friend.displayName;
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¿Lanzar un momento a $name?'),
+        content: const Text(
+          'Los dos tendrán 2 minutos para tomar una foto de lo que están haciendo. '
+          'Si ambos lo logran, la racha de hoy se confirma sola.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Ahora no'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('¡Lanzar!'),
+          ),
+        ],
+      ),
+    );
+    if (go != true || !mounted) return;
+    int? momentId;
+    await _run(() async {
+      final repo = ref.read(momentRepositoryProvider);
+      try {
+        momentId = (await repo.start(widget.friend.id)).id;
+      } on ApiException catch (e) {
+        if (e.statusCode != 409) rethrow;
+        // Ya había un momento abierto con esta persona: lo abrimos en vez de crear otro.
+        final open = (await repo.active()).where(
+          (m) => m.friend.id == widget.friend.id && m.isOpen,
+        );
+        if (open.isEmpty) rethrow;
+        momentId = open.first.id;
+      }
+      ref.invalidate(activeMomentsProvider);
+    });
+    if (momentId != null && mounted) context.push('/moments/$momentId');
   }
 
   Future<void> _manual() async {
@@ -162,6 +206,14 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
             const SizedBox(height: 16),
           ],
           _Option(
+            emoji: '📸',
+            title: 'Momento de foto',
+            subtitle: 'Los dos tienen 2 minutos para tomar una foto de lo que hacen. ¡La racha se confirma sola!',
+            highlight: true,
+            onTap: _busy ? null : _photoMoment,
+          ),
+          const SizedBox(height: 12),
+          _Option(
             emoji: '💬',
             title: 'Confirmación manual',
             subtitle:
@@ -205,6 +257,7 @@ class _Option extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.loading = false,
+    this.highlight = false,
   });
 
   final String emoji;
@@ -213,11 +266,14 @@ class _Option extends StatelessWidget {
   final VoidCallback? onTap;
   final bool loading;
 
+  /// La opción principal: más llamativa que las demás.
+  final bool highlight;
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Material(
-      color: AppColors.peachLight,
+      color: highlight ? AppColors.peach : AppColors.peachLight,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),

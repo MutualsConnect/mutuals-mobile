@@ -86,6 +86,7 @@ class AppNotification {
       'STREAK' => '/streaks/$id',
       'STREAK_INVITATION' => '/invitations',
       'INTERACTION' => '/pending',
+      'MOMENT' => '/moments/$id',
       _ => null,
     };
   }

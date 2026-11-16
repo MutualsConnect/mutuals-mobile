@@ -84,6 +84,15 @@ class MyProfilePage extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           ListTile(
+            leading: const Text('📸', style: TextStyle(fontSize: 24)),
+            title: const Text(
+              'Recuerdos',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/moments'),
+          ),
+          ListTile(
             leading: const Text('🎬', style: TextStyle(fontSize: 24)),
             title: const Text(
               'Mi Wrapped',

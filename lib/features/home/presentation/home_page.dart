@@ -14,6 +14,8 @@ import '../../streaks/presentation/streak_tile.dart';
 import '../../../shared/motion/skeleton.dart';
 import '../../../shared/motion/fade_slide_in.dart';
 import '../../../shared/motion/animated_count.dart';
+import '../../moments/data/moment_repository.dart';
+import '../../moments/presentation/moment_banner.dart';
 
 /// Inicio: tus rachas activas y las invitaciones pendientes.
 class HomePage extends ConsumerWidget {
@@ -21,6 +23,7 @@ class HomePage extends ConsumerWidget {
 
   Future<void> _refresh(WidgetRef ref) async {
     ref.invalidate(receivedInvitationsProvider);
+    ref.invalidate(activeMomentsProvider);
     ref.invalidate(pendingInteractionsProvider);
     ref.invalidate(unreadCountProvider);
     ref.read(authControllerProvider.notifier).refreshUser();
@@ -55,6 +58,7 @@ class HomePage extends ConsumerWidget {
               style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
+            const MomentBanner(),
             Row(
               children: [
                 _Stat(label: 'Gemas', value: user?.gems ?? 0, icon: '💎'),
