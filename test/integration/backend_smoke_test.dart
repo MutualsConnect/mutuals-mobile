@@ -1,6 +1,7 @@
 // Prueba contra el backend real (localhost:8080). Se omite por defecto.
 //
 //   MUTUALS_E2E=1 flutter test test/integration/backend_smoke_test.dart
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,8 @@ import 'package:mutuals/features/economy/data/models/economy_models.dart';
 import 'package:mutuals/features/gamification/data/gamification_repository.dart';
 import 'package:mutuals/features/gamification/data/models/gamification_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
+import 'package:mutuals/features/moments/data/models/moment_models.dart';
+import 'package:mutuals/features/moments/data/moment_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
@@ -926,6 +929,152 @@ void main() {
           description: 'Mensajes repetidos',
         );
       });
+    },
+  );
+
+  group(
+    'momentos de foto en el backend real',
+    skip: enabled ? false : 'Define MUTUALS_E2E=1 para ejecutar',
+    () {
+      // PNG de 1x1 píxel guardado en un archivo, como lo entrega la cámara.
+      final pngBytes = base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      );
+      late String photoPath;
+
+      setUpAll(() {
+        final file = File(
+          '${Directory.systemTemp.path}/mutuals-e2e-momento.png',
+        )..writeAsBytesSync(pngBytes);
+        photoPath = file.path;
+      });
+
+      Future<(MomentRepository, StreakRepository, SocialRepository, int)> user(
+        String name,
+      ) async {
+        final tokens = InMemoryTokenStorage();
+        final dio = createApiClient(
+          tokens: tokens,
+          onSessionExpired: () {},
+          baseUrl: 'http://localhost:8080/api/v1',
+        );
+        final id = DateTime.now().microsecondsSinceEpoch;
+        final u = await AuthRepository(dio, tokens).register(
+          email: '$name$id@example.com',
+          username: '$name$id',
+          displayName: 'User $name',
+          password: 'Prueba!2026x',
+        );
+        return (
+          MomentRepository(dio),
+          StreakRepository(dio),
+          SocialRepository(dio),
+          u.id,
+        );
+      }
+
+      /// Dos usuarios que son mutuals y tienen una racha activa.
+      Future<(MomentRepository, MomentRepository, SocialRepository, int, int)>
+      pair(String tag) async {
+        final (aMoments, aStreaks, aSocial, aId) = await user('${tag}a');
+        final (bMoments, bStreaks, bSocial, bId) = await user('${tag}b');
+        await aSocial.follow(bId);
+        await bSocial.follow(aId);
+        await aStreaks.invite(bId);
+        final inv = (await bStreaks.invitations(InvitationBox.received)).single;
+        await bStreaks.respond(inv.id, accept: true);
+        return (aMoments, bMoments, aSocial, aId, bId);
+      }
+
+      test(
+        'lanzar, subir las dos fotos y que la racha se confirme sola',
+        () async {
+          final (ana, luis, anaSocial, anaId, luisId) = await pair('mo1');
+
+          final started = await ana.start(luisId);
+          expect(started.status, MomentStatus.open);
+          expect(started.startedByMe, isTrue);
+          expect(started.remainingSeconds(), inInclusiveRange(100, 120));
+
+          final seenByLuis = (await luis.active()).single;
+          expect(seenByLuis.id, started.id);
+          expect(seenByLuis.startedByMe, isFalse);
+          expect(seenByLuis.friend.id, anaId);
+
+          final afterLuis = await luis.submitPhoto(
+            started.id,
+            photoPath,
+            caption: 'Cenando',
+          );
+          expect(afterLuis.status, MomentStatus.open);
+          expect(afterLuis.submittedByMe, isTrue);
+
+          // Ana ve que su amigo ya subió, pero todavía no ve su foto.
+          final anaView = await ana.get(started.id);
+          expect(anaView.friendSubmitted, isTrue);
+          expect(anaView.friendPhoto, isNull);
+
+          final completed = await ana.submitPhoto(started.id, photoPath);
+          expect(completed.status, MomentStatus.completed);
+          expect(completed.myPhoto?.photoUrl, startsWith('/uploads/moments/'));
+          expect(completed.friendPhoto?.caption, 'Cenando');
+
+          // La racha del día quedó contada sin hacer nada más.
+          final card = (await anaSocial.mutuals()).single;
+          expect(card.streak?.countedToday, isTrue);
+          expect(card.streak?.currentLength, 1);
+
+          expect(await ana.active(), isEmpty);
+          expect((await luis.history()).content.single.id, started.id);
+        },
+      );
+
+      test('no se puede lanzar otro mientras hay uno abierto, ni con quien no es tu amigo', () async {
+        final (ana, luis, _, anaId, luisId) = await pair('mo2');
+        await ana.start(luisId);
+        await expectLater(
+          ana.start(luisId),
+          throwsA(
+            isA<ApiException>().having((e) => e.statusCode, 'status', 409),
+          ),
+        );
+        await expectLater(
+          luis.start(anaId),
+          throwsA(
+            isA<ApiException>().having((e) => e.statusCode, 'status', 409),
+          ),
+        );
+
+        final (stranger, _, _, _) = await user('mo2c');
+        await expectLater(stranger.start(luisId), throwsA(isA<ApiException>()));
+      });
+
+      test(
+        'cada persona sube su foto una sola vez y un ajeno no puede participar',
+        () async {
+          final (ana, _, _, _, luisId) = await pair('mo3');
+          final (outsider, _, _, _) = await user('mo3x');
+          final moment = await ana.start(luisId);
+
+          await ana.submitPhoto(moment.id, photoPath);
+          await expectLater(
+            ana.submitPhoto(moment.id, photoPath),
+            throwsA(
+              isA<ApiException>().having((e) => e.statusCode, 'status', 409),
+            ),
+          );
+          await expectLater(
+            outsider.submitPhoto(moment.id, photoPath),
+            throwsA(
+              isA<ApiException>().having((e) => e.statusCode, 'status', 403),
+            ),
+          );
+          await expectLater(
+            outsider.get(moment.id),
+            throwsA(isA<ApiException>()),
+          );
+        },
+      );
     },
   );
 }

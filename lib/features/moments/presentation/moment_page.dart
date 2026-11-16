@@ -206,84 +206,109 @@ class _CaptureView extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final friend = moment.friend;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+    final hasPhoto = photoPath != null;
+    return Column(
       children: [
-        Center(
-          child: CountdownRing(remaining: remaining, total: total),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          moment.startedByMe
-              ? '¡Sube tu foto!'
-              : '¡${friend.displayName} lanzó un momento!',
-          textAlign: TextAlign.center,
-          style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Toma una foto de lo que estás haciendo ahora mismo. Cuando las dos fotos lleguen a tiempo, la racha se confirma sola.',
-          textAlign: TextAlign.center,
-          style: text.bodyMedium?.copyWith(color: AppColors.inkSoft),
-        ),
-        const SizedBox(height: 16),
-        _FriendStatus(friend: friend, submitted: moment.friendSubmitted),
-        const SizedBox(height: 20),
-        if (error != null) ...[ErrorBanner(error!), const SizedBox(height: 12)],
-        if (photoPath == null) ...[
-          FilledButton.icon(
-            onPressed: onTake,
-            icon: const Icon(Icons.photo_camera_rounded),
-            label: const Text('Tomar foto'),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(64),
-            ),
-          ),
-          if (cameraUnavailable)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(
-                'No pudimos abrir la cámara. Elige una foto de tu galería.',
-                textAlign: TextAlign.center,
-                style: text.bodySmall?.copyWith(color: AppColors.inkSoft),
-              ),
-            ),
-        ] else ...[
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: AspectRatio(
-              aspectRatio: 3 / 4,
-              child: Image.file(
-                File(photoPath!),
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const ColoredBox(
-                  color: AppColors.peachLight,
-                  child: Center(
-                    child: Text('📸', style: TextStyle(fontSize: 64)),
-                  ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+            children: [
+              Center(
+                child: CountdownRing(
+                  remaining: remaining,
+                  total: total,
+                  size: hasPhoto ? 140 : 220,
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Text(
+                moment.startedByMe
+                    ? '¡Sube tu foto!'
+                    : '¡${friend.displayName} lanzó un momento!',
+                textAlign: TextAlign.center,
+                style: text.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Toma una foto de lo que estás haciendo ahora mismo. Cuando las dos fotos lleguen a tiempo, la racha se confirma sola.',
+                textAlign: TextAlign.center,
+                style: text.bodyMedium?.copyWith(color: AppColors.inkSoft),
+              ),
+              const SizedBox(height: 16),
+              _FriendStatus(friend: friend, submitted: moment.friendSubmitted),
+              const SizedBox(height: 16),
+              if (error != null) ...[
+                ErrorBanner(error!),
+                const SizedBox(height: 12),
+              ],
+              if (hasPhoto) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: AspectRatio(
+                    aspectRatio: 3 / 4,
+                    child: Image.file(
+                      File(photoPath!),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => const ColoredBox(
+                        color: AppColors.peachLight,
+                        child: Center(
+                          child: Text('📸', style: TextStyle(fontSize: 64)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: caption,
+                  maxLength: 140,
+                  decoration: const InputDecoration(
+                    hintText: '¿Qué están haciendo? (opcional)',
+                  ),
+                ),
+              ] else if (cameraUnavailable)
+                Text(
+                  'No pudimos abrir la cámara. Elige una foto de tu galería.',
+                  textAlign: TextAlign.center,
+                  style: text.bodySmall?.copyWith(color: AppColors.inkSoft),
+                ),
+            ],
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: caption,
-            maxLength: 140,
-            decoration: const InputDecoration(
-              hintText: '¿Qué están haciendo? (opcional)',
-            ),
+        ),
+        // Botones fijos abajo: con el reloj corriendo no hay que desplazarse para enviar.
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+            child: hasPhoto
+                ? Row(
+                    children: [
+                      TextButton(
+                        onPressed: submitting ? null : onRetake,
+                        child: const Text('Tomar otra'),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: LoadingButton(
+                          label: 'Enviar foto',
+                          loading: submitting,
+                          onPressed: onSubmit,
+                        ),
+                      ),
+                    ],
+                  )
+                : FilledButton.icon(
+                    onPressed: onTake,
+                    icon: const Icon(Icons.photo_camera_rounded),
+                    label: const Text('Tomar foto'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(64),
+                    ),
+                  ),
           ),
-          const SizedBox(height: 8),
-          LoadingButton(
-            label: 'Enviar foto',
-            loading: submitting,
-            onPressed: onSubmit,
-          ),
-          TextButton(
-            onPressed: submitting ? null : onRetake,
-            child: const Text('Tomar otra'),
-          ),
-        ],
+        ),
       ],
     );
   }

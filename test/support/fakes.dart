@@ -10,6 +10,8 @@ import 'package:mutuals/features/economy/data/models/economy_models.dart';
 import 'package:mutuals/features/gamification/data/gamification_repository.dart';
 import 'package:mutuals/features/gamification/data/models/gamification_models.dart';
 import 'package:mutuals/features/interactions/data/interaction_repository.dart';
+import 'package:mutuals/features/moments/data/models/moment_models.dart';
+import 'package:mutuals/features/moments/data/moment_repository.dart';
 import 'package:mutuals/features/interactions/data/models/interaction_models.dart';
 import 'package:mutuals/features/notifications/data/models/notification_models.dart';
 import 'package:mutuals/features/notifications/data/notification_repository.dart';
@@ -731,4 +733,134 @@ class FakeProfileRepository extends ProfileRepository {
     String? description,
   }) async =>
       reports.add((id: userId, reason: reason, description: description));
+}
+
+MomentPhoto fakeMomentPhoto({
+  required UserSummary user,
+  bool revealed = true,
+  String? url = '/uploads/moments/x.png',
+  String? caption,
+}) => MomentPhoto(
+  user: user,
+  revealed: revealed,
+  photoUrl: revealed ? url : null,
+  caption: caption,
+  submittedAt: DateTime(2026, 11, 15, 20),
+);
+
+const _me = UserSummary(id: 1, username: 'ashly', displayName: 'Ashly');
+
+Moment fakeMoment({
+  int id = 50,
+  MomentStatus status = MomentStatus.open,
+  bool startedByMe = false,
+  bool submittedByMe = false,
+  bool friendSubmitted = false,
+  int secondsLeft = 100,
+  List<MomentPhoto> photos = const [],
+}) => Moment(
+  id: id,
+  streakId: 9,
+  friend: FakeSocialRepository.luis,
+  status: status,
+  startedByMe: startedByMe,
+  startedAt: DateTime(2026, 11, 15, 20),
+  expiresAt: DateTime(2026, 11, 15, 20, 2),
+  secondsLeft: secondsLeft,
+  submittedByMe: submittedByMe,
+  friendSubmitted: friendSubmitted,
+  photos: photos,
+);
+
+/// Un momento completado con las dos fotos reveladas.
+Moment fakeCompletedMoment({int id = 50}) => fakeMoment(
+  id: id,
+  status: MomentStatus.completed,
+  submittedByMe: true,
+  friendSubmitted: true,
+  secondsLeft: 0,
+  photos: [
+    fakeMomentPhoto(user: _me, caption: 'Estudiando'),
+    fakeMomentPhoto(
+      user: FakeSocialRepository.luis,
+      url: '/uploads/moments/y.png',
+      caption: 'Cenando',
+    ),
+  ],
+);
+
+/// Repositorio de momentos falso. Reproduce el comportamiento del servidor: al subir tu foto
+/// pasas a "esperando", y [friendSubmits] simula que tu amigo sube la suya y todo se completa.
+class FakeMomentRepository extends MomentRepository {
+  FakeMomentRepository({
+    List<Moment> moments = const [],
+    this.historyItems = const [],
+    this.startError,
+  }) : moments = List.of(moments),
+       super(Dio());
+
+  final List<Moment> moments;
+  final List<Moment> historyItems;
+  final ApiException? startError;
+
+  final started = <int>[];
+  final submissions = <({int id, String path, String? caption})>[];
+
+  void _replace(int id, Moment Function(Moment) change) {
+    final i = moments.indexWhere((m) => m.id == id);
+    moments[i] = change(moments[i]);
+  }
+
+  /// Tu amigo sube su foto: el momento se completa y se revelan las dos.
+  void friendSubmits(int id) =>
+      _replace(id, (_) => fakeCompletedMoment(id: id));
+
+  void expire(int id) => _replace(
+    id,
+    (m) => fakeMoment(id: id, status: MomentStatus.expired, secondsLeft: 0),
+  );
+
+  @override
+  Future<Moment> start(int friendId) async {
+    started.add(friendId);
+    if (startError != null) throw startError!;
+    final m = fakeMoment(id: 77, startedByMe: true);
+    moments.add(m);
+    return m;
+  }
+
+  @override
+  Future<List<Moment>> active() async =>
+      moments.where((m) => m.isOpen).toList();
+
+  @override
+  Future<Moment> get(int id) async => moments.firstWhere((m) => m.id == id);
+
+  @override
+  Future<PageResponse<Moment>> history({int page = 0}) async => PageResponse(
+    content: historyItems,
+    page: 0,
+    totalElements: historyItems.length,
+    last: true,
+  );
+
+  @override
+  Future<Moment> submitPhoto(
+    int id,
+    String photoPath, {
+    String? caption,
+  }) async {
+    submissions.add((id: id, path: photoPath, caption: caption));
+    _replace(
+      id,
+      (m) => fakeMoment(
+        id: id,
+        startedByMe: m.startedByMe,
+        submittedByMe: true,
+        friendSubmitted: m.friendSubmitted,
+        photos: [fakeMomentPhoto(user: _me)],
+      ),
+    );
+    return moments.firstWhere((m) => m.id == id);
+  }
 }

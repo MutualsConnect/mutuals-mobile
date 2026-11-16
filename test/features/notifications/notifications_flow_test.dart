@@ -186,6 +186,11 @@ void main() {
         '/pending',
       );
       expect(
+        fakeNotification(referenceType: 'MOMENT', referenceId: 5).route,
+        '/moments/5',
+      );
+      expect(fakeNotification(type: 'MOMENT_STARTED').emoji, '📸');
+      expect(
         fakeNotification(referenceType: 'WRAPPED', referenceId: 1).route,
         isNull,
       );

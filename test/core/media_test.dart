@@ -15,15 +15,27 @@ void main() {
 
     test('respeta el puerto y el servidor configurados', () {
       expect(
-        ApiConfig.mediaUrl('/uploads/x.jpg', apiBaseUrl: 'https://mutuals.example.com/api/v1'),
+        ApiConfig.mediaUrl(
+          '/uploads/x.jpg',
+          apiBaseUrl: 'https://mutuals.example.com/api/v1',
+        ),
         'https://mutuals.example.com/uploads/x.jpg',
       );
     });
 
-    test('agrega la barra inicial si falta y no toca las direcciones completas', () {
-      expect(ApiConfig.mediaUrl('uploads/x.jpg', apiBaseUrl: api), 'http://localhost:8080/uploads/x.jpg');
-      expect(ApiConfig.mediaUrl('https://cdn.example.com/a.png', apiBaseUrl: api), 'https://cdn.example.com/a.png');
-    });
+    test(
+      'agrega la barra inicial si falta y no toca las direcciones completas',
+      () {
+        expect(
+          ApiConfig.mediaUrl('uploads/x.jpg', apiBaseUrl: api),
+          'http://localhost:8080/uploads/x.jpg',
+        );
+        expect(
+          ApiConfig.mediaUrl('https://cdn.example.com/a.png', apiBaseUrl: api),
+          'https://cdn.example.com/a.png',
+        );
+      },
+    );
   });
 
   group('imageMimeType', () {
