@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_icons.dart';
 import '../../../social/data/models/social_models.dart';
 
 /// Logro del catálogo con tu progreso (`AchievementResponse`).
@@ -37,13 +40,13 @@ class Achievement {
         : DateTime.parse(json['unlockedAt'] as String),
   );
 
-  String get emoji => switch (type) {
-    'STREAK' => '🔥',
-    'PERSONAL_STREAK' => '⚡',
-    'MONTHLY_MEDAL' => '🏅',
-    'CHALLENGE' => '🎯',
-    'SOCIAL' => '🤝',
-    _ => '🏆',
+  IconData get icon => switch (type) {
+    'STREAK' => AppIcons.flame,
+    'PERSONAL_STREAK' => AppIcons.bolt,
+    'MONTHLY_MEDAL' => AppIcons.medal,
+    'CHALLENGE' => AppIcons.target,
+    'SOCIAL' => AppIcons.handshake,
+    _ => AppIcons.trophy,
   };
 }
 
@@ -95,18 +98,18 @@ class AvatarItem {
     equipped: json['equipped'] as bool? ?? false,
   );
 
-  /// El backend aún no trae imágenes, así que cada ítem se representa con un emoji.
-  String get emoji => switch (code) {
-    'HAIR_CURLY' => '👩‍🦱',
-    'HAIR_BUZZ' => '💈',
-    'OUTFIT_HOODIE' => '🧥',
-    'OUTFIT_UTEC' => '👕',
-    'ACCESSORY_CAP' => '🧢',
+  /// El backend aún no trae imágenes, así que cada ítem se representa con un icono.
+  IconData get icon => switch (code) {
+    'HAIR_CURLY' => AppIcons.hair,
+    'HAIR_BUZZ' => AppIcons.hair,
+    'OUTFIT_HOODIE' => AppIcons.outfit,
+    'OUTFIT_UTEC' => AppIcons.outfit,
+    'ACCESSORY_CAP' => AppIcons.accessory,
     _ => switch (layer) {
-      AvatarLayer.base => '🙂',
-      AvatarLayer.hair => '💇',
-      AvatarLayer.outfit => '👕',
-      AvatarLayer.accessory => '🎩',
+      AvatarLayer.base => AppIcons.avatar,
+      AvatarLayer.hair => AppIcons.hair,
+      AvatarLayer.outfit => AppIcons.outfit,
+      AvatarLayer.accessory => AppIcons.accessory,
     },
   };
 
@@ -159,10 +162,10 @@ class ChallengeTemplate {
         requiresPhoto: json['requiresPhoto'] as bool? ?? false,
       );
 
-  String get emoji => switch (type) {
-    'IN_PERSON' => '📍',
-    'CREATIVE' => '🎨',
-    _ => '📱',
+  IconData get icon => switch (type) {
+    'IN_PERSON' => AppIcons.pin,
+    'CREATIVE' => AppIcons.palette,
+    _ => AppIcons.phone,
   };
 }
 

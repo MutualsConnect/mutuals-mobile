@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -187,8 +190,9 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.sky,
+                color: AppColors.glassSky,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.glassBorder),
               ),
               child: Row(
                 children: [
@@ -206,7 +210,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
             const SizedBox(height: 16),
           ],
           _Option(
-            emoji: '📸',
+            icon: AppIcons.camera,
             title: 'Momento de foto',
             subtitle: 'Los dos tienen 2 minutos para tomar una foto de lo que hacen. ¡La racha se confirma sola!',
             highlight: true,
@@ -214,7 +218,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
           ),
           const SizedBox(height: 12),
           _Option(
-            emoji: '💬',
+            icon: AppIcons.chat,
             title: 'Confirmación manual',
             subtitle:
                 'Registra la interacción y tu amigo la confirma en 24 horas.',
@@ -222,7 +226,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
           ),
           const SizedBox(height: 12),
           _Option(
-            emoji: '📷',
+            icon: AppIcons.scan,
             title: 'Escanear su código QR',
             subtitle:
                 'Se confirma al instante. El código cambia cada 30 segundos.',
@@ -230,7 +234,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
           ),
           const SizedBox(height: 12),
           _Option(
-            emoji: '🧭',
+            icon: Icons.qr_code_2_rounded,
             title: 'Mi código QR',
             subtitle:
                 'Muéstrale tu código a ${friend.displayName} para que lo escanee.',
@@ -238,7 +242,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
           ),
           const SizedBox(height: 12),
           _Option(
-            emoji: '📍',
+            icon: AppIcons.pin,
             title: 'Estamos juntos',
             subtitle: 'Ambos tocan este botón en 2 minutos y a menos de 100 m.',
             loading: _busy,
@@ -252,7 +256,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
 
 class _Option extends StatelessWidget {
   const _Option({
-    required this.emoji,
+    required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -260,7 +264,7 @@ class _Option extends StatelessWidget {
     this.highlight = false,
   });
 
-  final String emoji;
+  final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
@@ -272,9 +276,15 @@ class _Option extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final fg = highlight ? AppColors.onAccent : AppColors.ink;
     return Material(
-      color: highlight ? AppColors.peach : AppColors.peachLight,
-      borderRadius: BorderRadius.circular(24),
+      color: highlight ? AppColors.peach : AppColors.glass,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: highlight
+            ? BorderSide.none
+            : const BorderSide(color: AppColors.glassBorder),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
@@ -282,7 +292,11 @@ class _Option extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 32)),
+              Icon(
+                icon,
+                size: 30,
+                color: highlight ? AppColors.onAccent : AppColors.peach,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -292,26 +306,31 @@ class _Option extends StatelessWidget {
                       title,
                       style: text.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
+                        color: fg,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: text.bodySmall?.copyWith(color: AppColors.inkSoft),
+                      style: text.bodySmall?.copyWith(
+                        color: highlight
+                            ? AppColors.onAccent
+                            : AppColors.inkSoft,
+                      ),
                     ),
                   ],
                 ),
               ),
               loading
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: AppColors.ink,
+                        color: fg,
                       ),
                     )
-                  : const Icon(Icons.chevron_right_rounded),
+                  : Icon(Icons.chevron_right_rounded, color: fg),
             ],
           ),
         ),

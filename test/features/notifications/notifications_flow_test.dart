@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mutuals/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mutuals/core/utils/date_format.dart';
@@ -189,7 +190,7 @@ void main() {
         fakeNotification(referenceType: 'MOMENT', referenceId: 5).route,
         '/moments/5',
       );
-      expect(fakeNotification(type: 'MOMENT_STARTED').emoji, '📸');
+      expect(fakeNotification(type: 'MOMENT_STARTED').icon, AppIcons.camera);
       expect(
         fakeNotification(referenceType: 'WRAPPED', referenceId: 1).route,
         isNull,

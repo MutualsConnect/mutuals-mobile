@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -193,7 +196,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               children: const [
                 SizedBox(height: 100),
                 EmptyState(
-                  emoji: '🔔',
+                  icon: AppIcons.bell,
                   title: 'Sin notificaciones',
                   message: 'Aquí verás invitaciones, confirmaciones y avisos de tus rachas.',
                 ),
@@ -247,10 +250,10 @@ class _FilterChip extends StatelessWidget {
       selected: selected,
       onSelected: (_) => onTap(),
       selectedColor: AppColors.peach,
-      backgroundColor: AppColors.peachLight,
+      backgroundColor: AppColors.glass,
       side: BorderSide.none,
-      labelStyle: const TextStyle(
-        color: AppColors.ink,
+      labelStyle: TextStyle(
+        color: selected ? AppColors.onAccent : AppColors.ink,
         fontWeight: FontWeight.w700,
       ),
       showCheckmark: false,
@@ -269,9 +272,7 @@ class _NotificationTile extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final n = notification;
     return Material(
-      color: n.read
-          ? Colors.white.withValues(alpha: 0.6)
-          : AppColors.peachLight,
+      color: n.read ? AppColors.glassSoft : AppColors.glass,
       borderRadius: BorderRadius.circular(22),
       child: InkWell(
         borderRadius: BorderRadius.circular(22),
@@ -281,7 +282,7 @@ class _NotificationTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(n.emoji, style: const TextStyle(fontSize: 28)),
+              Icon(n.icon, size: 26, color: AppColors.peach),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

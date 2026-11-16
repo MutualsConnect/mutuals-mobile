@@ -76,6 +76,8 @@ Future<void> _open(
     200,
     scrollable: find.byType(Scrollable).first,
   );
+  await tester.drag(find.byType(Scrollable).first, const Offset(0, -150));
+  await tester.pumpAndSettle();
   await tester.tap(find.text('Ajustes'));
   await tester.pumpAndSettle();
 }

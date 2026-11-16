@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_icons.dart';
 import '../../../social/data/models/social_models.dart';
 
 /// Una novedad del feed (`ActivityResponse`).
@@ -62,13 +65,13 @@ class Activity {
         createdAt: createdAt,
       );
 
-  String get emoji => switch (type) {
-    'STREAK_MILESTONE' => '🔥',
-    'PERSONAL_STREAK_MILESTONE' => '⚡',
-    'ACHIEVEMENT_UNLOCKED' => '🏅',
-    'RECORD_BROKEN' => '🏆',
-    'CHALLENGE_COMPLETED' => '🎯',
-    _ => '✨',
+  IconData get icon => switch (type) {
+    'STREAK_MILESTONE' => AppIcons.flame,
+    'PERSONAL_STREAK_MILESTONE' => AppIcons.bolt,
+    'ACHIEVEMENT_UNLOCKED' => AppIcons.medal,
+    'RECORD_BROKEN' => AppIcons.trophy,
+    'CHALLENGE_COMPLETED' => AppIcons.target,
+    _ => AppIcons.sparkle,
   };
 }
 

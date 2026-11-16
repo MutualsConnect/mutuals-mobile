@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -54,22 +57,30 @@ class HomePage extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           children: [
             Text(
-              'Hola, ${user?.displayName ?? ''} 👋',
+              'Hola, ${user?.displayName ?? ''}',
               style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
             const MomentBanner(),
             Row(
               children: [
-                _Stat(label: 'Gemas', value: user?.gems ?? 0, icon: '💎'),
+                _Stat(
+                  label: 'Gemas',
+                  value: user?.gems ?? 0,
+                  icon: AppIcons.gem,
+                ),
                 const SizedBox(width: 12),
-                _Stat(label: 'Escudos', value: user?.shields ?? 0, icon: '🛡️'),
+                _Stat(
+                  label: 'Escudos',
+                  value: user?.shields ?? 0,
+                  icon: AppIcons.shield,
+                ),
               ],
             ),
             if (pending.isNotEmpty) ...[
               const SizedBox(height: 16),
               _Banner(
-                emoji: '✅',
+                icon: AppIcons.check,
                 message: pending.length == 1
                     ? '1 amigo espera tu confirmación'
                     : '${pending.length} amigos esperan tu confirmación',
@@ -79,7 +90,7 @@ class HomePage extends ConsumerWidget {
             if (invitations.isNotEmpty) ...[
               const SizedBox(height: 16),
               _Banner(
-                emoji: '💌',
+                icon: AppIcons.mail,
                 message: invitations.length == 1
                     ? 'Tienes 1 invitación de racha'
                     : 'Tienes ${invitations.length} invitaciones de racha',
@@ -108,7 +119,7 @@ class HomePage extends ConsumerWidget {
                 final active = list.where((m) => m.streak != null).toList();
                 if (active.isEmpty) {
                   return const EmptyState(
-                    emoji: '🔥',
+                    icon: AppIcons.flame,
                     title: 'Aún no tienes rachas',
                     message: 'Ve a Mutuals e invita a un amigo para empezar tu primera racha.',
                   );
@@ -155,20 +166,23 @@ class _NotificationBell extends StatelessWidget {
 
 class _Banner extends StatelessWidget {
   const _Banner({
-    required this.emoji,
+    required this.icon,
     required this.message,
     required this.route,
   });
 
-  final String emoji;
+  final IconData icon;
   final String message;
   final String route;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.sky,
-      borderRadius: BorderRadius.circular(22),
+      color: AppColors.glassSky,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: const BorderSide(color: AppColors.glassBorder),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(22),
         onTap: () => context.push(route),
@@ -176,7 +190,7 @@ class _Banner extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 28)),
+              Icon(icon, size: 28, color: AppColors.peach),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -198,15 +212,18 @@ class _Stat extends StatelessWidget {
 
   final String label;
   final int value;
-  final String icon;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Expanded(
       child: Material(
-        color: AppColors.sky,
-        borderRadius: BorderRadius.circular(24),
+        color: AppColors.glassSky,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: AppColors.glassBorder),
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: () => context.push('/wallet'),
@@ -214,7 +231,7 @@ class _Stat extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             child: Row(
               children: [
-                Text(icon, style: const TextStyle(fontSize: 26)),
+                Icon(icon, size: 26, color: AppColors.peach),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

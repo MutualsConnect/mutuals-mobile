@@ -90,7 +90,7 @@ void main() {
 
     expect(repo.updates.single.name, 'Ashly V.');
     expect(repo.updates.single.bio, 'Me encantan las rachas');
-    expect(find.text('Perfil actualizado ✨'), findsOneWidget);
+    expect(find.text('Perfil actualizado'), findsOneWidget);
   });
 
   testWidgets('el nombre no puede quedar vacío', (tester) async {

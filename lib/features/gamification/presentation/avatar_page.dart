@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -39,7 +44,7 @@ class _AvatarPageState extends ConsumerState<AvatarPage> {
       if (!item.owned) {
         await repo.purchaseAvatarItem(item.id);
         ref.read(authControllerProvider.notifier).refreshUser();
-        _toast('¡${item.name} es tuyo! ✨');
+        _toast('¡${item.name} es tuyo!');
       } else {
         await repo.equipAvatarItem(item.id);
       }
@@ -90,8 +95,9 @@ class _AvatarPageState extends ConsumerState<AvatarPage> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.sky,
+                      color: AppColors.glassSky,
                       borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppColors.glassBorder),
                     ),
                     child: Row(
                       children: [
@@ -108,15 +114,17 @@ class _AvatarPageState extends ConsumerState<AvatarPage> {
                                   spacing: 8,
                                   children: [
                                     for (final i in equipped)
-                                      Text(
-                                        i.emoji,
-                                        style: const TextStyle(fontSize: 30),
+                                      Icon(
+                                        i.icon,
+                                        size: 30,
+                                        color: AppColors.peach,
                                       ),
                                   ],
                                 ),
                         ),
-                        Text(
-                          '${user?.gems ?? 0} 💎',
+                        IconText(
+                          AppIcons.gem,
+                          '${user?.gems ?? 0}',
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 18,
@@ -162,7 +170,7 @@ class _ItemGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) {
       return const EmptyState(
-        emoji: '🛍️',
+        icon: AppIcons.bag,
         title: 'Nada por aquí',
         message: 'Pronto habrá más ítems.',
       );
@@ -202,19 +210,20 @@ class _ItemCard extends StatelessWidget {
     final blocked = item.premiumOnly && !item.owned;
     final String label;
     if (item.equipped) {
-      label = 'Equipado ✓';
+      label = 'Equipado';
     } else if (item.owned) {
       label = 'Equipar';
     } else if (blocked) {
-      label = '⭐ Solo Plus';
+      label = 'Solo Plus';
     } else {
-      label = item.priceGems == 0 ? 'Gratis' : 'Comprar · ${item.priceGems} 💎';
+      label = item.priceGems == 0 ? 'Gratis' : 'Comprar · ${item.priceGems}';
     }
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: item.equipped ? AppColors.peach : AppColors.peachLight,
+        color: item.equipped ? AppColors.peach : AppColors.glass,
         borderRadius: BorderRadius.circular(24),
+        border: item.equipped ? null : Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         children: [
@@ -223,18 +232,30 @@ class _ItemCard extends StatelessWidget {
               child: item.imageUrl != null
                   ? Image.network(
                       ApiConfig.mediaUrl(item.imageUrl!),
-                      errorBuilder: (_, _, _) => Text(
-                        item.emoji,
-                        style: const TextStyle(fontSize: 56),
+                      errorBuilder: (_, _, _) => Icon(
+                        item.icon,
+                        size: 52,
+                        color: item.equipped
+                            ? AppColors.onAccent
+                            : AppColors.peach,
                       ),
                     )
-                  : Text(item.emoji, style: const TextStyle(fontSize: 56)),
+                  : Icon(
+                      item.icon,
+                      size: 52,
+                      color: item.equipped
+                          ? AppColors.onAccent
+                          : AppColors.peach,
+                    ),
             ),
           ),
           Text(
             item.name,
             textAlign: TextAlign.center,
-            style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+            style: text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: item.equipped ? AppColors.onAccent : null,
+            ),
           ),
           const SizedBox(height: 8),
           SizedBox(
@@ -243,8 +264,14 @@ class _ItemCard extends StatelessWidget {
               onPressed: busy || item.equipped || blocked ? null : onTap,
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 42),
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.glass,
                 foregroundColor: AppColors.ink,
+                disabledBackgroundColor: item.equipped
+                    ? AppColors.onAccent.withValues(alpha: 0.14)
+                    : null,
+                disabledForegroundColor: item.equipped
+                    ? AppColors.onAccent
+                    : null,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
               ),
               child: busy

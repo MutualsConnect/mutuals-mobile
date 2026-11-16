@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_icons.dart';
+
 /// Prioridad de una notificación: las `high` también se envían como push.
 enum NotificationPriority { high, low }
 
@@ -54,28 +58,28 @@ class AppNotification {
         createdAt: DateTime.parse(json['createdAt'] as String),
       );
 
-  /// Emoji que representa el tipo de aviso.
-  String get emoji => switch (type) {
-    'NEW_FOLLOWER' => '👋',
-    'MUTUAL_CREATED' => '🤝',
-    'STREAK_INVITATION' => '💌',
-    'STREAK_STARTED' => '🔥',
-    'INTERACTION_PENDING' => '⏳',
-    'INTERACTION_CONFIRMED' => '✅',
-    'PROXIMITY_DETECTED' => '📍',
-    'STREAK_AT_RISK' => '⚠️',
-    'STREAK_BROKEN' => '💔',
-    'STREAK_MILESTONE' => '🏆',
-    'SHIELD_RECEIVED' => '🎁',
-    'SHIELD_USED' => '🛡️',
-    'CHALLENGE_ASSIGNED' || 'CHALLENGE_COMPLETED' => '🎯',
-    'ACHIEVEMENT_UNLOCKED' => '🏅',
-    'ACTIVITY_LIKED' => '❤️',
-    'ACTIVITY_COMMENTED' => '💬',
-    'WRAPPED_READY' => '🎬',
-    'SUBSCRIPTION' => '⭐',
-    'MOMENT_STARTED' => '📸',
-    _ => '🔔',
+  /// Icono que representa el tipo de aviso.
+  IconData get icon => switch (type) {
+    'NEW_FOLLOWER' => AppIcons.wave,
+    'MUTUAL_CREATED' => AppIcons.handshake,
+    'STREAK_INVITATION' => AppIcons.mail,
+    'STREAK_STARTED' => AppIcons.flame,
+    'INTERACTION_PENDING' => AppIcons.hourglass,
+    'INTERACTION_CONFIRMED' => AppIcons.check,
+    'PROXIMITY_DETECTED' => AppIcons.pin,
+    'STREAK_AT_RISK' => AppIcons.warning,
+    'STREAK_BROKEN' => AppIcons.broken,
+    'STREAK_MILESTONE' => AppIcons.trophy,
+    'SHIELD_RECEIVED' => AppIcons.gift,
+    'SHIELD_USED' => AppIcons.shield,
+    'CHALLENGE_ASSIGNED' || 'CHALLENGE_COMPLETED' => AppIcons.target,
+    'ACHIEVEMENT_UNLOCKED' => AppIcons.medal,
+    'ACTIVITY_LIKED' => AppIcons.heart,
+    'ACTIVITY_COMMENTED' => AppIcons.chat,
+    'WRAPPED_READY' => AppIcons.film,
+    'SUBSCRIPTION' => AppIcons.star,
+    'MOMENT_STARTED' => AppIcons.camera,
+    _ => AppIcons.bell,
   };
 
   /// Pantalla a la que lleva tocar la notificación, o `null` si no hay.

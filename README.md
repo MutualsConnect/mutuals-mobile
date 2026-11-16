@@ -17,6 +17,10 @@ que cambia cada 30 segundos o por proximidad con GPS. Esta app es el cliente mó
 | :---: | :---: | :---: |
 | ![Billetera](docs/screenshots/04-billetera.png) | ![Wrapped](docs/screenshots/05-wrapped.png) | ![Avatar](docs/screenshots/07-avatar.png) |
 
+| Momento de foto |
+| :---: |
+| ![Momento](docs/screenshots/08-momento.png) |
+
 ## Funcionalidades
 
 Cubre las funciones principales de la API del backend (el panel de administración vive en la web).
@@ -37,7 +41,7 @@ Cubre las funciones principales de la API del backend (el panel de administraci�
 
 ## Tecnologías
 
-- **Flutter** 3.47 y Dart, con Material 3 y una paleta propia (durazno, crema y celeste).
+- **Flutter** 3.47 y Dart, con Material 3 en **modo oscuro con efecto vidrio** (superficies translúcidas con desenfoque sobre un fondo con resplandores durazno y celeste) e iconos monocromáticos en lugar de emojis.
 - **Riverpod** para el estado, **go_router** para la navegación (con barra inferior y rutas protegidas por sesión).
 - **dio** para HTTP, con un interceptor que renueva el JWT ante un 401 sin duplicar renovaciones.
 - **flutter_secure_storage** (Keychain / Keystore) para los tokens.
@@ -104,7 +108,7 @@ MUTUALS_E2E=1 flutter test test/integration/backend_smoke_test.dart
   (`google-services.json`, `GoogleService-Info.plist` y la cuenta de servicio del backend). Las notificaciones dentro
   de la app funcionan completas.
 - **Suscripción Plus:** es una demostración, igual que en el backend; no se realiza ningún cobro.
-- **Modo oscuro:** el diseño es claro y cálido; la app no sigue el modo oscuro del sistema.
+- **Tema:** la app es siempre oscura (con vidrio); no tiene modo claro.
 - **Android:** el proyecto está configurado (permisos, ícono y pantalla de inicio), pero las pruebas visuales se
   hicieron en el simulador de iPhone.
 - El backend aún no entrega imágenes para los ítems de avatar, así que se representan con emojis.

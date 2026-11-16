@@ -1,6 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_colors.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -73,7 +80,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   Widget _results() {
     if (_query.length < 2) {
       return const EmptyState(
-        emoji: '🔎',
+        icon: AppIcons.search,
         title: 'Encuentra a tus amigos',
         message: 'Escribe al menos 2 letras de su nombre o usuario.',
       );
@@ -88,7 +95,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       data: (page) {
         if (page.content.isEmpty) {
           return EmptyState(
-            emoji: '🙈',
+            icon: AppIcons.hidden,
             title: 'Sin resultados',
             message: 'Nadie coincide con "$_query".',
           );
@@ -118,7 +125,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 ),
                 subtitle: Text('@${user.username}'),
                 trailing: user.personalStreak > 0
-                    ? Text('🔥 ${user.personalStreak}')
+                    ? IconText(
+                        AppIcons.flame,
+                        '${user.personalStreak}',
+                        color: AppColors.peach,
+                      )
                     : null,
                 onTap: () => context.push('/users/${user.id}'),
               ),

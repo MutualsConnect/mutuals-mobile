@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,7 +93,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               children: const [
                 SizedBox(height: 100),
                 EmptyState(
-                  emoji: '📰',
+                  icon: AppIcons.feed,
                   title: 'Aún no hay novedades',
                   message: 'Cuando tus mutuals alcancen hitos o desbloqueen logros, lo verás aquí.',
                 ),
@@ -158,7 +161,7 @@ class _ActivityCardState extends State<_ActivityCard> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: a.fromMutual ? AppColors.peachLight : Colors.white,
+              color: a.fromMutual ? AppColors.glass : AppColors.glassSoft,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Column(
@@ -186,7 +189,7 @@ class _ActivityCardState extends State<_ActivityCard> {
                             ),
                           ),
                           Text(
-                            '${a.fromMutual ? '🤝 Mutual · ' : ''}${timeAgo(a.createdAt)}',
+                            '${a.fromMutual ? 'Mutual · ' : ''}${timeAgo(a.createdAt)}',
                             style: text.labelSmall?.copyWith(
                               color: AppColors.inkSoft,
                             ),
@@ -194,7 +197,7 @@ class _ActivityCardState extends State<_ActivityCard> {
                         ],
                       ),
                     ),
-                    Text(a.emoji, style: const TextStyle(fontSize: 28)),
+                    Icon(a.icon, size: 28, color: AppColors.peach),
                   ],
                 ),
                 const SizedBox(height: 12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mutuals/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mutuals/core/media/photo_picker.dart';
@@ -101,7 +102,7 @@ void main() {
 
     expect(find.text('1 de 3 desbloqueados'), findsOneWidget);
     expect(find.text('Desbloqueado el 10 nov 2026'), findsOneWidget);
-    expect(find.text('🔒'), findsNWidgets(2));
+    expect(find.byIcon(AppIcons.lock), findsNWidgets(2));
   });
 
   testWidgets('avatar: comprar un ítem y luego equiparlo', (tester) async {
@@ -122,11 +123,11 @@ void main() {
     await _open(tester, 'Mi avatar', repo: repo);
 
     // Pestaña Base: el ítem que ya llevas puesto.
-    expect(find.text('Equipado ✓'), findsOneWidget);
+    expect(find.text('Equipado'), findsOneWidget);
 
     await tester.tap(find.text('Cabello'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Comprar · 20 💎'));
+    await tester.tap(find.text('Comprar · 20'));
     await tester.pumpAndSettle();
     expect(repo.purchased, [2]);
     expect(find.text('Equipar'), findsOneWidget);
@@ -134,7 +135,7 @@ void main() {
     await tester.tap(find.text('Equipar'));
     await tester.pumpAndSettle();
     expect(repo.equipped, [2]);
-    expect(find.text('Equipado ✓'), findsOneWidget);
+    expect(find.text('Equipado'), findsOneWidget);
   });
 
   testWidgets('avatar: lo exclusivo de Plus no se puede comprar', (
@@ -156,7 +157,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final button = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, '⭐ Solo Plus'),
+      find.widgetWithText(FilledButton, 'Solo Plus'),
     );
     expect(button.onPressed, isNull);
   });

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -73,7 +76,7 @@ class _InvitationList extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 100),
                   EmptyState(
-                    emoji: received ? '📭' : '📤',
+                    icon: received ? AppIcons.inbox : AppIcons.outbox,
                     title: received
                         ? 'Sin invitaciones'
                         : 'No has enviado invitaciones',
@@ -142,8 +145,9 @@ class _InvitationCardState extends ConsumerState<_InvitationCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.peachLight,
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         children: [
@@ -196,7 +200,7 @@ class _InvitationCardState extends ConsumerState<_InvitationCard> {
                         ? null
                         : () => _run(
                             (r) => r.respond(id, accept: true),
-                            success: '¡Racha iniciada! 🔥',
+                            success: '¡Racha iniciada!',
                           ),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(46),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mutuals/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mutuals/core/network/api_exception.dart';
@@ -94,9 +95,9 @@ void main() {
       );
       expect(find.text('Luis desbloqueó Primer fueguito'), findsOneWidget);
       expect(find.text('Luis llegó a 7 días de racha'), findsOneWidget);
-      expect(find.textContaining('🤝 Mutual'), findsOneWidget);
+      expect(find.textContaining('Mutual ·'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
-      expect(find.text('🏅'), findsOneWidget);
+      expect(find.byIcon(AppIcons.medal), findsOneWidget);
     },
   );
 

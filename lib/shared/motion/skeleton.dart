@@ -48,9 +48,9 @@ class _SkeletonBoxState extends State<SkeletonBox>
               begin: Alignment(-1.5 + 3 * t, 0),
               end: Alignment(-0.5 + 3 * t, 0),
               colors: [
-                AppColors.peachLight.withValues(alpha: 0.55),
-                AppColors.peachLight.withValues(alpha: 0.95),
-                AppColors.peachLight.withValues(alpha: 0.55),
+                AppColors.glass.withValues(alpha: 0.55),
+                AppColors.glass.withValues(alpha: 0.95),
+                AppColors.glass.withValues(alpha: 0.55),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_icons.dart';
 import '../data/models/wrapped_models.dart';
 
 enum SlideKind { intro, counter, topMutual, methods, friends, empty, outro }
@@ -9,7 +10,7 @@ enum SlideKind { intro, counter, topMutual, methods, friends, empty, outro }
 class WrappedSlide {
   const WrappedSlide({
     required this.kind,
-    required this.emoji,
+    required this.icon,
     required this.title,
     required this.color,
     this.value,
@@ -20,7 +21,7 @@ class WrappedSlide {
   });
 
   final SlideKind kind;
-  final String emoji;
+  final IconData icon;
   final String title;
   final Color color;
 
@@ -37,8 +38,8 @@ class WrappedSlide {
 const _palette = [
   AppColors.peach,
   AppColors.sky,
-  AppColors.peachLight,
-  Color(0xFFFFE9C7),
+  Color(0xFFB9A7FF),
+  Color(0xFFFF9FB2),
 ];
 
 String methodLabel(String method) => switch (method) {
@@ -62,7 +63,7 @@ List<WrappedSlide> buildWrappedSlides({
   final slides = <WrappedSlide>[
     WrappedSlide(
       kind: SlideKind.intro,
-      emoji: '🎬',
+      icon: AppIcons.film,
       title: 'Tu Wrapped',
       subtitle: periodLabel,
       color: next(),
@@ -73,7 +74,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.empty,
-        emoji: '🌱',
+        icon: AppIcons.sprout,
         title: 'Aún no hay mucho que contar',
         subtitle: 'Registra interacciones con tus mutuals y tu próximo Wrapped será increíble.',
         color: next(),
@@ -86,7 +87,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.counter,
-        emoji: '💬',
+        icon: AppIcons.chat,
         value: stats.interactions,
         title: stats.interactions == 1
             ? 'interacción con tus amigos'
@@ -99,7 +100,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.counter,
-        emoji: '📅',
+        icon: AppIcons.calendar,
         value: stats.activeDays,
         title: stats.activeDays == 1 ? 'día activo' : 'días activo',
         color: next(),
@@ -110,7 +111,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.counter,
-        emoji: '🔥',
+        icon: AppIcons.flame,
         value: stats.longestStreak,
         title: 'días: tu racha más larga',
         color: next(),
@@ -122,7 +123,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.topMutual,
-        emoji: '🤝',
+        icon: AppIcons.handshake,
         title: top,
         subtitle:
             'fue tu mutual del periodo · ${stats.topMutualInteractions} interacciones',
@@ -134,7 +135,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.methods,
-        emoji: '🧭',
+        icon: AppIcons.compass,
         title: 'Cómo se conectaron',
         methods: stats.interactionsByMethod,
         color: next(),
@@ -145,12 +146,12 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.counter,
-        emoji: '🎯',
+        icon: AppIcons.target,
         value: stats.challengesCompleted,
         title: stats.challengesCompleted == 1
             ? 'desafío completado'
             : 'desafíos completados',
-        subtitle: '${stats.gemsEarned} 💎 ganadas',
+        subtitle: '${stats.gemsEarned} gemas ganadas',
         color: next(),
       ),
     );
@@ -159,11 +160,11 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.counter,
-        emoji: '✨',
+        icon: AppIcons.sparkle,
         value: stats.newMutuals,
         title: stats.newMutuals == 1 ? 'mutual nuevo' : 'mutuals nuevos',
         subtitle: stats.shieldsGifted > 0
-            ? '${stats.shieldsGifted} 🛡️ regalados'
+            ? '${stats.shieldsGifted} escudos regalados'
             : null,
         color: next(),
       ),
@@ -173,7 +174,7 @@ List<WrappedSlide> buildWrappedSlides({
     slides.add(
       WrappedSlide(
         kind: SlideKind.friends,
-        emoji: '🫶',
+        icon: AppIcons.heart,
         title: 'Tus amigos',
         friends: friends,
         showPlusUpsell: allTime != null && !allTime.fullAccess,
@@ -184,7 +185,7 @@ List<WrappedSlide> buildWrappedSlides({
   slides.add(
     WrappedSlide(
       kind: SlideKind.outro,
-      emoji: '💛',
+      icon: AppIcons.heart,
       title: 'Gracias por mantener tus amistades vivas',
       color: next(),
     ),

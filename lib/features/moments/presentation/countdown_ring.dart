@@ -81,7 +81,7 @@ class _RingPainter extends CustomPainter {
     final track = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
-      ..color = AppColors.peachLight;
+      ..color = AppColors.glass;
     final fill = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke

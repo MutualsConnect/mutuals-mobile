@@ -1,6 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,7 +46,7 @@ class WrappedPage extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
             children: [
               Material(
-                color: AppColors.peach,
+                color: AppColors.glassPeach,
                 borderRadius: BorderRadius.circular(28),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(28),
@@ -50,7 +55,11 @@ class WrappedPage extends ConsumerWidget {
                     padding: const EdgeInsets.all(22),
                     child: Row(
                       children: [
-                        const Text('🎬', style: TextStyle(fontSize: 44)),
+                        const Icon(
+                          AppIcons.film,
+                          size: 44,
+                          color: AppColors.peach,
+                        ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
@@ -82,7 +91,7 @@ class WrappedPage extends ConsumerWidget {
               const SizedBox(height: 8),
               if (items.isEmpty)
                 const EmptyState(
-                  emoji: '🗓️',
+                  icon: AppIcons.calendar,
                   title: 'Tu primer Wrapped está en camino',
                   message: 'Se genera al terminar cada mes y cada año.',
                 )
@@ -90,9 +99,12 @@ class WrappedPage extends ConsumerWidget {
                 for (final w in items)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: Text(
-                      w.periodType == WrappedPeriodType.yearly ? '🏆' : '📆',
-                      style: const TextStyle(fontSize: 28),
+                    leading: Icon(
+                      w.periodType == WrappedPeriodType.yearly
+                          ? AppIcons.trophy
+                          : AppIcons.calendar,
+                      size: 28,
+                      color: AppColors.peach,
                     ),
                     title: Text(
                       w.label,
@@ -216,10 +228,19 @@ class _WrappedStoriesPageState extends State<WrappedStoriesPage> {
   Widget build(BuildContext context) {
     final slides = widget.slides;
     return Scaffold(
-      backgroundColor: slides[_index].color,
+      backgroundColor: AppColors.background,
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 350),
-        color: slides[_index].color,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              slides[_index].color.withValues(alpha: 0.5),
+              AppColors.background,
+            ],
+          ),
+        ),
         child: SafeArea(
           child: Stack(
             children: [
@@ -262,10 +283,14 @@ class _WrappedStoriesPageState extends State<WrappedStoriesPage> {
                   child: FilledButton(
                     onPressed: () => context.push('/plus'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.ink,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.peach,
+                      foregroundColor: AppColors.onAccent,
                     ),
-                    child: const Text('⭐ Ver todos con Plus'),
+                    child: const IconText(
+                      AppIcons.star,
+                      'Ver todos con Plus',
+                      color: AppColors.onAccent,
+                    ),
                   ),
                 ),
               Padding(
@@ -320,7 +345,16 @@ class _SlideView extends StatelessWidget {
             duration: const Duration(milliseconds: 700),
             curve: Curves.elasticOut,
             builder: (_, t, child) => Transform.scale(scale: t, child: child),
-            child: Text(s.emoji, style: const TextStyle(fontSize: 96)),
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: s.color.withValues(alpha: 0.18),
+                border: Border.all(color: s.color.withValues(alpha: 0.5)),
+              ),
+              child: Icon(s.icon, size: 68, color: s.color),
+            ),
           ),
           const SizedBox(height: 16),
           if (s.value != null)
@@ -401,8 +435,8 @@ class _Methods extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: v,
                         minHeight: 14,
-                        color: AppColors.ink,
-                        backgroundColor: Colors.white.withValues(alpha: 0.6),
+                        color: AppColors.peach,
+                        backgroundColor: AppColors.glass,
                       ),
                     ),
                   ),
@@ -434,8 +468,9 @@ class _Friends extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColors.glass,
               borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.glassBorder),
             ),
             child: Row(
               children: [
@@ -445,9 +480,17 @@ class _Friends extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
-                Text(
-                  '${f.interactions} 💬 · mejor 🔥 ${f.bestStreak}',
+                IconText(
+                  AppIcons.chat,
+                  '${f.interactions}',
                   style: const TextStyle(fontSize: 13),
+                ),
+                const SizedBox(width: 12),
+                IconText(
+                  AppIcons.flame,
+                  '${f.bestStreak}',
+                  style: const TextStyle(fontSize: 13),
+                  color: AppColors.peach,
                 ),
               ],
             ),

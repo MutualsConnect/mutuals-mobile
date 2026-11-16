@@ -52,7 +52,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       await ref.read(authControllerProvider.notifier).refreshUser();
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Perfil actualizado ✨')));
+          .showSnackBar(const SnackBar(content: Text('Perfil actualizado')));
       context.pop();
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = e.message);

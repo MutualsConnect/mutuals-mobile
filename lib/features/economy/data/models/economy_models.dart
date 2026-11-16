@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_icons.dart';
+
 /// Saldo de la billetera (`WalletResponse`).
 class Wallet {
   const Wallet({
@@ -71,7 +75,8 @@ class WalletTransaction {
         createdAt: DateTime.parse(json['createdAt'] as String),
       );
 
-  String get currencyEmoji => currency == WalletCurrency.gems ? '💎' : '🛡️';
+  IconData get currencyIcon =>
+      currency == WalletCurrency.gems ? AppIcons.gem : AppIcons.shield;
 
   /// El backend registra los gastos de la tienda de avatar como
   /// "Avatar item: nombre"; el resto de gastos son compras de escudos.

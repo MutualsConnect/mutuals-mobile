@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -69,7 +74,7 @@ class _ContentState extends ConsumerState<_Content> {
       await ref.read(streakRepositoryProvider).invite(widget.profile.id);
       ref.invalidate(mutualsProvider);
       ref.invalidate(sentInvitationsProvider);
-      _toast('Invitación enviada 🔥');
+      _toast('Invitación enviada');
     } on ApiException catch (e) {
       if (mounted) _toast(e.message);
     } finally {
@@ -85,7 +90,7 @@ class _ContentState extends ConsumerState<_Content> {
       if (!p.followedByMe) {
         final result = await repo.follow(p.id);
         _refresh();
-        if (result.mutual) _toast('¡Ahora son mutuals! 🎉');
+        if (result.mutual) _toast('¡Ahora son mutuals!');
       } else {
         await _unfollow(repo, p);
       }
@@ -160,11 +165,13 @@ class _ContentState extends ConsumerState<_Content> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.sky,
+                  color: AppColors.glassSky,
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.glassBorder),
                 ),
-                child: const Text(
-                  '🤝 Mutuals',
+                child: const IconText(
+                  AppIcons.handshake,
+                  'Mutuals',
                   style: TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
@@ -187,7 +194,11 @@ class _ContentState extends ConsumerState<_Content> {
         const SizedBox(height: 24),
         Row(
           children: [
-            _Stat(value: '${p.personalStreak}', label: 'Racha', emoji: '🔥'),
+            _Stat(
+              value: '${p.personalStreak}',
+              label: 'Racha',
+              icon: AppIcons.flame,
+            ),
             const SizedBox(width: 10),
             _Stat(value: '${p.followers}', label: 'Seguidores'),
             const SizedBox(width: 10),
@@ -226,11 +237,11 @@ class _ContentState extends ConsumerState<_Content> {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label, this.emoji});
+  const _Stat({required this.value, required this.label, this.icon});
 
   final String value;
   final String label;
-  final String? emoji;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -239,14 +250,18 @@ class _Stat extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: AppColors.peachLight,
+          color: AppColors.glass,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.glassBorder),
         ),
         child: Column(
           children: [
-            Text(
-              '${emoji ?? ''} $value'.trim(),
+            IconText(
+              icon ?? Icons.circle,
+              value,
               style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+              color: icon == null ? Colors.transparent : AppColors.peach,
+              size: icon == null ? 0 : null,
             ),
             Text(label, style: text.bodySmall),
           ],
@@ -302,7 +317,6 @@ class _ProfileMenu extends ConsumerWidget {
     final result = await showModalBottomSheet<(ReportReason, String)>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cream,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),

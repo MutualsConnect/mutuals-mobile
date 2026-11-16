@@ -28,7 +28,7 @@ class LoadingButton extends StatelessWidget {
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: AppColors.ink,
+                  color: AppColors.onAccent,
                 ),
               )
             : Text(label, key: const ValueKey('label')),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,7 +34,7 @@ class HistoryPage extends ConsumerWidget {
         ),
         data: (groups) => groups.isEmpty
             ? const EmptyState(
-                emoji: '📜',
+                icon: AppIcons.history,
                 title: 'Aún no hay historial',
                 message: 'Tus rachas, activas y terminadas, aparecerán aquí.',
               )
@@ -57,8 +60,9 @@ class _Group extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.peachLight,
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,9 +98,10 @@ class _Group extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(
-                s.isActive ? '🔥' : '💔',
-                style: const TextStyle(fontSize: 22),
+              leading: Icon(
+                s.isActive ? AppIcons.flame : AppIcons.broken,
+                size: 24,
+                color: s.isActive ? AppColors.peach : AppColors.inkSoft,
               ),
               title: Text(
                 '${s.currentLength} ${s.currentLength == 1 ? 'día' : 'días'}',
