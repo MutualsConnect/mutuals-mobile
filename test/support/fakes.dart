@@ -504,12 +504,22 @@ class FakeGamificationRepository extends GamificationRepository {
 }
 
 class FakePhotoPicker implements PhotoPicker {
-  FakePhotoPicker(this.path);
+  FakePhotoPicker(this.path, {this.cameraPath, this.cameraError});
 
   final String? path;
+  final String? cameraPath;
+
+  /// Si no es nulo, la cámara falla con este error (simula un dispositivo sin cámara).
+  final Object? cameraError;
 
   @override
   Future<String?> pick() async => path;
+
+  @override
+  Future<String?> takePhoto() async {
+    if (cameraError != null) throw cameraError!;
+    return cameraPath ?? path;
+  }
 }
 
 Activity fakeActivity({

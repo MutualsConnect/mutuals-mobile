@@ -8,6 +8,7 @@ import '../../../shared/widgets/user_avatar.dart';
 import '../../auth/application/auth_controller.dart';
 import '../data/gamification_repository.dart';
 import '../data/models/gamification_models.dart';
+import '../../../core/network/api_config.dart';
 
 const _layerNames = {
   AvatarLayer.base: 'Base',
@@ -221,7 +222,7 @@ class _ItemCard extends StatelessWidget {
             child: Center(
               child: item.imageUrl != null
                   ? Image.network(
-                      item.imageUrl!,
+                      ApiConfig.mediaUrl(item.imageUrl!),
                       errorBuilder: (_, _, _) => Text(
                         item.emoji,
                         style: const TextStyle(fontSize: 56),
