@@ -18,7 +18,45 @@ enum ReportReason {
   final String label;
 }
 
-/// Edición del perfil propio, bloqueos y reportes.
+/// Preferencias de la cuenta (`PreferencesResponse`).
+class Preferences {
+  const Preferences({
+    this.locationSharingEnabled = false,
+    this.pushEnabled = true,
+    this.emailNotificationsEnabled = true,
+    this.muteHighlights = false,
+  });
+
+  factory Preferences.fromJson(Map<String, dynamic> json) => Preferences(
+    locationSharingEnabled: json['locationSharingEnabled'] as bool? ?? false,
+    pushEnabled: json['pushEnabled'] as bool? ?? true,
+    emailNotificationsEnabled:
+        json['emailNotificationsEnabled'] as bool? ?? true,
+    muteHighlights: json['muteHighlights'] as bool? ?? false,
+  );
+
+  final bool locationSharingEnabled;
+  final bool pushEnabled;
+  final bool emailNotificationsEnabled;
+  final bool muteHighlights;
+}
+
+/// Dispositivo registrado para notificaciones (`DeviceResponse`).
+class Device {
+  const Device({required this.id, required this.platform, this.lastSeenAt});
+
+  factory Device.fromJson(Map<String, dynamic> json) => Device(
+    id: (json['id'] as num).toInt(),
+    platform: json['platform'] as String? ?? '',
+    lastSeenAt: DateTime.tryParse(json['lastSeenAt'] as String? ?? ''),
+  );
+
+  final int id;
+  final String platform;
+  final DateTime? lastSeenAt;
+}
+
+/// Edición del perfil propio, preferencias, dispositivos, bloqueos y reportes.
 class ProfileRepository {
   ProfileRepository(this._dio);
 
@@ -34,6 +72,55 @@ class ProfileRepository {
       data: {'displayName': displayName.trim(), 'bio': bio.trim()},
     ),
   );
+
+  Future<Preferences> preferences() async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/users/me/preferences');
+      return Preferences.fromJson(res.data!);
+    } on DioException catch (e) {
+      throw e.apiException;
+    }
+  }
+
+  /// Cambia solo los campos indicados.
+  Future<Preferences> updatePreferences({
+    bool? locationSharingEnabled,
+    bool? pushEnabled,
+    bool? emailNotificationsEnabled,
+    bool? muteHighlights,
+  }) async {
+    try {
+      final res = await _dio.patch<Map<String, dynamic>>(
+        '/users/me/preferences',
+        data: {
+          'locationSharingEnabled': ?locationSharingEnabled,
+          'pushEnabled': ?pushEnabled,
+          'emailNotificationsEnabled': ?emailNotificationsEnabled,
+          'muteHighlights': ?muteHighlights,
+        },
+      );
+      return Preferences.fromJson(res.data!);
+    } on DioException catch (e) {
+      throw e.apiException;
+    }
+  }
+
+  Future<List<Device>> devices() async {
+    try {
+      final res = await _dio.get<List<dynamic>>('/users/me/devices');
+      return [
+        for (final d in res.data!) Device.fromJson(d as Map<String, dynamic>),
+      ];
+    } on DioException catch (e) {
+      throw e.apiException;
+    }
+  }
+
+  Future<void> removeDevice(int id) =>
+      _guard(() => _dio.delete<void>('/users/me/devices/$id'));
+
+  /// Anonimiza y cierra tu cuenta en el servidor.
+  Future<void> deleteAccount() => _guard(() => _dio.delete<void>('/users/me'));
 
   Future<void> block(int userId) =>
       _guard(() => _dio.post<void>('/users/$userId/block'));
@@ -65,4 +152,12 @@ class ProfileRepository {
 
 final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepository(ref.watch(dioProvider)),
+);
+
+final preferencesProvider = FutureProvider.autoDispose<Preferences>(
+  (ref) => ref.watch(profileRepositoryProvider).preferences(),
+);
+
+final devicesProvider = FutureProvider.autoDispose<List<Device>>(
+  (ref) => ref.watch(profileRepositoryProvider).devices(),
 );

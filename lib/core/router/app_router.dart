@@ -29,6 +29,7 @@ import '../../features/social/presentation/mutuals_page.dart';
 import '../../features/social/presentation/my_profile_page.dart';
 import '../../features/social/presentation/profile_page.dart';
 import '../../features/social/presentation/search_page.dart';
+import '../../features/social/presentation/settings_page.dart';
 import '../../features/streaks/presentation/history_page.dart';
 import '../../features/streaks/presentation/invitations_page.dart';
 import '../../features/streaks/presentation/streak_detail_page.dart';
@@ -178,6 +179,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/profile/edit',
         builder: (_, _) => const EditProfilePage(),
       ),
+      GoRoute(path: '/settings', builder: (_, _) => const SettingsPage()),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
       GoRoute(
         path: '/achievements',

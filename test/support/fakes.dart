@@ -713,6 +713,42 @@ class FakeProfileRepository extends ProfileRepository {
   final updates = <({String name, String bio})>[];
   final blocked = <int>[];
   final reports = <({int id, ReportReason reason, String? description})>[];
+  var prefs = const Preferences();
+  var deviceList = <Device>[const Device(id: 7, platform: 'IOS')];
+  var deleted = false;
+
+  @override
+  Future<Preferences> preferences() async => prefs;
+
+  @override
+  Future<Preferences> updatePreferences({
+    bool? locationSharingEnabled,
+    bool? pushEnabled,
+    bool? emailNotificationsEnabled,
+    bool? muteHighlights,
+  }) async {
+    if (error != null) throw error!;
+    return prefs = Preferences(
+      locationSharingEnabled:
+          locationSharingEnabled ?? prefs.locationSharingEnabled,
+      pushEnabled: pushEnabled ?? prefs.pushEnabled,
+      emailNotificationsEnabled:
+          emailNotificationsEnabled ?? prefs.emailNotificationsEnabled,
+      muteHighlights: muteHighlights ?? prefs.muteHighlights,
+    );
+  }
+
+  @override
+  Future<List<Device>> devices() async => deviceList;
+
+  @override
+  Future<void> removeDevice(int id) async => deviceList = [
+    for (final d in deviceList)
+      if (d.id != id) d,
+  ];
+
+  @override
+  Future<void> deleteAccount() async => deleted = true;
 
   @override
   Future<void> updateProfile({
