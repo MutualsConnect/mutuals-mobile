@@ -8,6 +8,22 @@ void main() {
   runApp(const ProviderScope(child: MutualsApp()));
 }
 
+/// Desplazamiento con rebote, como en iOS, también en Android: se siente más fluido.
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
+}
+
 class MutualsApp extends ConsumerWidget {
   const MutualsApp({super.key});
 
@@ -19,6 +35,7 @@ class MutualsApp extends ConsumerWidget {
       theme: AppTheme.light,
       // El diseño de Mutuals es claro y cálido; no seguimos el modo oscuro del sistema.
       themeMode: ThemeMode.light,
+      scrollBehavior: const AppScrollBehavior(),
       routerConfig: ref.watch(routerProvider),
     );
   }

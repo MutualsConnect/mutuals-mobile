@@ -193,4 +193,30 @@ void main() {
       expect(find.text('Novedad 10'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'doble toque sobre la novedad da me gusta y no lo quita al repetir',
+    (tester) async {
+      final repo = FakeActivityRepository(
+        items: [fakeActivity(id: 1, likes: 3, title: 'Luis llegó a 7 días')],
+      );
+      await _openFeed(tester, repo);
+
+      final title = find.text('Luis llegó a 7 días');
+      await tester.tap(title);
+      await tester.pump(const Duration(milliseconds: 40));
+      await tester.tap(title);
+      await tester.pumpAndSettle();
+      expect(repo.liked, [1]);
+      expect(find.text('4'), findsOneWidget);
+
+      // Un segundo doble toque no quita el me gusta (como en Instagram).
+      await tester.tap(title);
+      await tester.pump(const Duration(milliseconds: 40));
+      await tester.tap(title);
+      await tester.pumpAndSettle();
+      expect(repo.unliked, isEmpty);
+      expect(find.text('4'), findsOneWidget);
+    },
+  );
 }

@@ -11,6 +11,9 @@ import '../../notifications/data/notification_repository.dart';
 import '../../social/data/social_repository.dart';
 import '../../streaks/data/streak_repository.dart';
 import '../../streaks/presentation/streak_tile.dart';
+import '../../../shared/motion/skeleton.dart';
+import '../../../shared/motion/fade_slide_in.dart';
+import '../../../shared/motion/animated_count.dart';
 
 /// Inicio: tus rachas activas y las invitaciones pendientes.
 class HomePage extends ConsumerWidget {
@@ -54,13 +57,9 @@ class HomePage extends ConsumerWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                _Stat(label: 'Gemas', value: '${user?.gems ?? 0}', icon: '💎'),
+                _Stat(label: 'Gemas', value: user?.gems ?? 0, icon: '💎'),
                 const SizedBox(width: 12),
-                _Stat(
-                  label: 'Escudos',
-                  value: '${user?.shields ?? 0}',
-                  icon: '🛡️',
-                ),
+                _Stat(label: 'Escudos', value: user?.shields ?? 0, icon: '🛡️'),
               ],
             ),
             if (pending.isNotEmpty) ...[
@@ -90,11 +89,10 @@ class HomePage extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             mutuals.when(
-              loading: () => const Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.peach),
-                ),
+              loading: () => const SkeletonCards(
+                count: 2,
+                height: 104,
+                padding: EdgeInsets.zero,
               ),
               error: (e, _) => ErrorState(
                 message: e is ApiException
@@ -113,8 +111,11 @@ class HomePage extends ConsumerWidget {
                 }
                 return Column(
                   children: [
-                    for (final m in active) ...[
-                      StreakTile(card: m),
+                    for (var i = 0; i < active.length; i++) ...[
+                      FadeSlideIn(
+                        index: i,
+                        child: StreakTile(card: active[i]),
+                      ),
                       const SizedBox(height: 12),
                     ],
                   ],
@@ -192,7 +193,7 @@ class _Stat extends StatelessWidget {
   const _Stat({required this.label, required this.value, required this.icon});
 
   final String label;
-  final String value;
+  final int value;
   final String icon;
 
   @override
@@ -214,8 +215,8 @@ class _Stat extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      value,
+                    AnimatedCount(
+                      value: value,
                       style: text.titleLarge?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
