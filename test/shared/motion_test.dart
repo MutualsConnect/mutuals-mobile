@@ -92,11 +92,11 @@ void main() {
 
   testWidgets('AnimatedCount sube hasta el valor final', (tester) async {
     await tester.pumpWidget(
-      _host(const AnimatedCount(value: 42, prefix: '🔥 ')),
+      _host(const AnimatedCount(value: 42, prefix: 'x ')),
     );
-    expect(find.text('🔥 0'), findsOneWidget);
+    expect(find.text('x 0'), findsOneWidget);
     await tester.pumpAndSettle();
-    expect(find.text('🔥 42'), findsOneWidget);
+    expect(find.text('x 42'), findsOneWidget);
   });
 
   group('HeartPop', () {
@@ -182,6 +182,6 @@ void main() {
   testWidgets('la llama late unas veces y se queda quieta', (tester) async {
     await tester.pumpWidget(_host(const AnimatedFlame(pulses: 2)));
     await tester.pumpAndSettle(); // si fuera infinita esto no terminaría
-    expect(find.text('🔥'), findsOneWidget);
+    expect(find.byIcon(Icons.local_fire_department_rounded), findsOneWidget);
   });
 }

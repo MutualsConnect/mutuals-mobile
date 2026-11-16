@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -17,14 +20,17 @@ class StreakTile extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final streak = card.streak!;
     final (label, color) = streak.atRisk
-        ? ('En riesgo', const Color(0xFFFFB4A8))
+        ? ('En riesgo', const Color(0x4DFF6B5B))
         : streak.countedToday
-        ? ('Hecha hoy', AppColors.sky)
-        : ('Pendiente hoy', Colors.white);
+        ? ('Hecha hoy', AppColors.glassSky)
+        : ('Pendiente hoy', AppColors.glass);
     return PressScale(
       child: Material(
-        color: AppColors.peachLight,
-        borderRadius: BorderRadius.circular(28),
+        color: AppColors.glass,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+          side: const BorderSide(color: AppColors.glassBorder),
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(28),
           onTap: () => context.push('/streaks/${streak.id}'),
@@ -70,9 +76,21 @@ class StreakTile extends StatelessWidget {
                 ),
                 Column(
                   children: [
-                    Text(
-                      streak.shieldArmed ? '🔥🛡️' : '🔥',
-                      style: const TextStyle(fontSize: 28),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          AppIcons.flame,
+                          size: 28,
+                          color: AppColors.peach,
+                        ),
+                        if (streak.shieldArmed)
+                          const Icon(
+                            AppIcons.shield,
+                            size: 18,
+                            color: AppColors.sky,
+                          ),
+                      ],
                     ),
                     Text(
                       '${streak.currentLength}',

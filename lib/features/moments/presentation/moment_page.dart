@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -261,9 +264,13 @@ class _CaptureView extends StatelessWidget {
                       File(photoPath!),
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => const ColoredBox(
-                        color: AppColors.peachLight,
+                        color: AppColors.glass,
                         child: Center(
-                          child: Text('📸', style: TextStyle(fontSize: 64)),
+                          child: Icon(
+                            AppIcons.camera,
+                            size: 64,
+                            color: AppColors.peach,
+                          ),
                         ),
                       ),
                     ),
@@ -343,7 +350,7 @@ class _FriendStatus extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: submitted ? AppColors.sky : AppColors.peachLight,
+        color: submitted ? AppColors.glassSky : AppColors.glass,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -357,7 +364,7 @@ class _FriendStatus extends StatelessWidget {
           Expanded(
             child: Text(
               submitted
-                  ? '${friend.displayName} ya subió su foto ✓'
+                  ? '${friend.displayName} ya subió su foto'
                   : 'Esperando la foto de ${friend.displayName}',
               style: const TextStyle(fontWeight: FontWeight.w800),
             ),
@@ -482,7 +489,8 @@ class _RevealView extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('🔥 ', style: TextStyle(fontSize: 22)),
+                  const Icon(AppIcons.flame, size: 24, color: AppColors.peach),
+                  const SizedBox(width: 6),
                   AnimatedCount(
                     value: streak.currentLength,
                     style: text.titleLarge?.copyWith(
@@ -573,8 +581,8 @@ class _MomentImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const placeholder = ColoredBox(
-      color: AppColors.peachLight,
-      child: Center(child: Text('📷', style: TextStyle(fontSize: 48))),
+      color: AppColors.glass,
+      child: Center(child: Icon(AppIcons.camera, size: 48)),
     );
     if (localPath != null) {
       return Image.file(

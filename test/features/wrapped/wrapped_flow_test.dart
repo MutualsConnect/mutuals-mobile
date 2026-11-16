@@ -272,7 +272,7 @@ void main() {
       }
       expect(find.text('Tus amigos'), findsOneWidget);
       expect(find.text('Luis Vega'), findsOneWidget);
-      await tester.tap(find.text('⭐ Ver todos con Plus'));
+      await tester.tap(find.text('Ver todos con Plus'));
       await tester.pumpAndSettle();
       expect(find.text('Lleva tus rachas más lejos'), findsOneWidget);
     },

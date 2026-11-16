@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -41,7 +46,10 @@ class AchievementsPage extends ConsumerWidget {
                 _Progress(unlocked: unlocked, total: list.length),
                 const SizedBox(height: 16),
                 if (list.isEmpty)
-                  const EmptyState(emoji: '🏆', title: 'Aún no hay logros')
+                  const EmptyState(
+                    icon: AppIcons.trophy,
+                    title: 'Aún no hay logros',
+                  )
                 else
                   for (final a in list) ...[
                     _AchievementCard(achievement: a),
@@ -68,8 +76,9 @@ class _Progress extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.sky,
+        color: AppColors.glassSky,
         borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +94,7 @@ class _Progress extends StatelessWidget {
               value: total == 0 ? 0 : unlocked / total,
               minHeight: 10,
               color: AppColors.peach,
-              backgroundColor: Colors.white,
+              backgroundColor: AppColors.glass,
             ),
           ),
         ],
@@ -108,14 +117,15 @@ class _AchievementCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: a.unlocked ? AppColors.peachLight : Colors.white,
+          color: a.unlocked ? AppColors.glass : AppColors.glassSoft,
           borderRadius: BorderRadius.circular(22),
         ),
         child: Row(
           children: [
-            Text(
-              a.unlocked ? a.emoji : '🔒',
-              style: const TextStyle(fontSize: 34),
+            Icon(
+              a.unlocked ? a.icon : AppIcons.lock,
+              size: 32,
+              color: a.unlocked ? AppColors.peach : AppColors.inkSoft,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -144,8 +154,9 @@ class _AchievementCard extends StatelessWidget {
               ),
             ),
             if (a.rewardGems > 0)
-              Text(
-                '+${a.rewardGems} 💎',
+              IconText(
+                AppIcons.gem,
+                '+${a.rewardGems}',
                 style: text.titleSmall?.copyWith(fontWeight: FontWeight.w900),
               ),
           ],

@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -63,13 +66,13 @@ class _MomentBannerState extends ConsumerState<MomentBanner>
       title = 'Esperando la foto de ${m.friend.displayName}';
     }
     final urgent = m.remainingSeconds() <= 20;
+    final hot = urgent && !m.submittedByMe;
+    final fg = hot ? AppColors.ink : AppColors.onAccent;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: PressScale(
         child: Material(
-          color: urgent && !m.submittedByMe
-              ? const Color(0xFFFFB4A8)
-              : AppColors.peach,
+          color: hot ? const Color(0x66FF6B5B) : AppColors.peach,
           borderRadius: BorderRadius.circular(26),
           child: InkWell(
             borderRadius: BorderRadius.circular(26),
@@ -82,7 +85,7 @@ class _MomentBannerState extends ConsumerState<MomentBanner>
                     scale: Tween(begin: 1.0, end: 1.18).animate(
                       CurvedAnimation(parent: _pulse, curve: Curves.easeInOut),
                     ),
-                    child: const Text('📸', style: TextStyle(fontSize: 36)),
+                    child: Icon(AppIcons.camera, size: 36, color: fg),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -91,25 +94,27 @@ class _MomentBannerState extends ConsumerState<MomentBanner>
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 16,
+                            color: fg,
                           ),
                         ),
                         Text(
                           m.submittedByMe
                               ? 'Tu foto ya salió'
                               : 'Toca para tomar la foto',
-                          style: const TextStyle(fontSize: 13),
+                          style: TextStyle(fontSize: 13, color: fg),
                         ),
                       ],
                     ),
                   ),
                   Text(
                     formatCountdown(m.remainingSeconds()),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 24,
+                      color: fg,
                     ),
                   ),
                 ],

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,7 +44,7 @@ class MemoriesPage extends ConsumerWidget {
                   children: const [
                     SizedBox(height: 100),
                     EmptyState(
-                      emoji: '📸',
+                      icon: AppIcons.camera,
                       title: 'Aún no tienes recuerdos',
                       message: 'Cada momento que completen con un amigo se guarda aquí, con las dos fotos.',
                     ),
@@ -74,8 +77,11 @@ class _MemoryCard extends StatelessWidget {
         ? moment.startedAt
         : moment.photos.last.submittedAt;
     return Material(
-      color: AppColors.peachLight,
-      borderRadius: BorderRadius.circular(28),
+      color: AppColors.glass,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+        side: const BorderSide(color: AppColors.glassBorder),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(28),
         onTap: () => context.push('/moments/${moment.id}'),
@@ -127,7 +133,7 @@ class _Thumb extends StatelessWidget {
   Widget build(BuildContext context) {
     const placeholder = ColoredBox(
       color: Colors.white,
-      child: Center(child: Text('📷', style: TextStyle(fontSize: 32))),
+      child: Center(child: Icon(AppIcons.camera, size: 32)),
     );
     final u = url;
     if (u == null) return placeholder;

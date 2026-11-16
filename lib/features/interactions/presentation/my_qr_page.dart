@@ -108,7 +108,7 @@ class _MyQrPageState extends ConsumerState<MyQrPage> {
                       value: (_secondsLeft / 30).clamp(0.0, 1.0),
                       minHeight: 8,
                       color: AppColors.peach,
-                      backgroundColor: AppColors.peachLight,
+                      backgroundColor: AppColors.glass,
                     ),
                   ),
                   const SizedBox(height: 10),

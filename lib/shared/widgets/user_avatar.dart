@@ -22,7 +22,7 @@ class UserAvatar extends StatelessWidget {
       style: TextStyle(
         fontSize: radius * 0.8,
         fontWeight: FontWeight.w800,
-        color: AppColors.ink,
+        color: AppColors.onAccent,
       ),
     );
     return CircleAvatar(

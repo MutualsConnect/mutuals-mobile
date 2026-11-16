@@ -5,12 +5,14 @@ class AnimatedFlame extends StatefulWidget {
   const AnimatedFlame({
     super.key,
     this.size = 88,
-    this.emoji = '🔥',
+    this.icon = Icons.local_fire_department_rounded,
+    this.color = const Color(0xFFFFBE91),
     this.pulses = 4,
   });
 
   final double size;
-  final String emoji;
+  final IconData icon;
+  final Color color;
 
   /// Cuántos latidos hace; es finito para que la pantalla pueda asentarse.
   final int pulses;
@@ -47,7 +49,7 @@ class _AnimatedFlameState extends State<AnimatedFlame>
           ),
         );
       },
-      child: Text(widget.emoji, style: TextStyle(fontSize: widget.size)),
+      child: Icon(widget.icon, size: widget.size, color: widget.color),
     );
   }
 }

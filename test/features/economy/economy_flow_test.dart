@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mutuals/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mutuals/core/network/api_exception.dart';
@@ -80,7 +81,7 @@ void main() {
     await _pump(tester, FakeEconomyRepository(gems: 45, shields: 1));
     expect(find.text('45'), findsOneWidget);
     expect(find.textContaining('Cada escudo cuesta 20'), findsOneWidget);
-    expect(find.text('Comprar por 20 💎'), findsOneWidget);
+    expect(find.text('Comprar por 20 gemas'), findsOneWidget);
   });
 
   testWidgets('comprar escudos descuenta las gemas', (tester) async {
@@ -89,9 +90,9 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.add_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('Comprar por 40 💎'), findsOneWidget);
+    expect(find.text('Comprar por 40 gemas'), findsOneWidget);
 
-    await tester.tap(find.text('Comprar por 40 💎'));
+    await tester.tap(find.text('Comprar por 40 gemas'));
     await tester.pumpAndSettle();
 
     expect(economy.purchases, [2]);
@@ -104,7 +105,7 @@ void main() {
     (tester) async {
       await _pump(tester, FakeEconomyRepository(gems: 5));
       final button = tester.widget<FilledButton>(
-        find.widgetWithText(FilledButton, 'Comprar por 20 💎'),
+        find.widgetWithText(FilledButton, 'Comprar por 20 gemas'),
       );
       expect(button.onPressed, isNull);
       expect(find.textContaining('Te faltan 15'), findsOneWidget);
@@ -122,7 +123,7 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text('Comprar por 20 💎'));
+    await tester.tap(find.text('Comprar por 20 gemas'));
     await tester.pumpAndSettle();
     expect(find.text('Saldo insuficiente'), findsOneWidget);
   });
@@ -212,7 +213,7 @@ void main() {
         'createdAt': '2026-11-12T01:00:00Z',
       });
       expect(t.currency, WalletCurrency.shields);
-      expect(t.currencyEmoji, '🛡️');
+      expect(t.currencyIcon, AppIcons.shield);
       expect(t.title, 'Escudos añadidos');
     },
   );

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -72,13 +75,13 @@ class _ScanQrPageState extends ConsumerState<ScanQrPage> {
                   if (value != null) _submit(value);
                 },
                 errorBuilder: (context, error) => Container(
-                  color: AppColors.peachLight,
+                  color: AppColors.glass,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('📷', style: TextStyle(fontSize: 48)),
+                      const Icon(AppIcons.camera, size: 48),
                       const SizedBox(height: 8),
                       Text(
                         'No se pudo abrir la cámara.\nPuedes pegar el código abajo.',

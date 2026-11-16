@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -103,12 +106,21 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.peachLight,
+                color: AppColors.glass,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.glassBorder),
               ),
-              child: Text(
-                '${a.emoji}  ${a.title}',
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              child: Row(
+                children: [
+                  Icon(a.icon, color: AppColors.peach),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      a.title,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -130,7 +142,7 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
     }
     if (_comments.isEmpty) {
       return const EmptyState(
-        emoji: '💬',
+        icon: AppIcons.chat,
         title: 'Sin comentarios',
         message: 'Sé la primera persona en comentar.',
       );
@@ -207,7 +219,7 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
               onPressed: _sending ? null : _send,
               style: IconButton.styleFrom(
                 backgroundColor: AppColors.peach,
-                foregroundColor: AppColors.ink,
+                foregroundColor: AppColors.onAccent,
               ),
               icon: const Icon(Icons.send_rounded),
             ),

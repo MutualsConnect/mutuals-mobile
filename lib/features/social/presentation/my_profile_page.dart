@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../../shared/motion/animated_count.dart';
@@ -43,9 +49,11 @@ class MyProfilePage extends ConsumerWidget {
             const Padding(
               padding: EdgeInsets.only(top: 10),
               child: Center(
-                child: Text(
-                  '⭐ Mutuals Plus',
+                child: IconText(
+                  AppIcons.star,
+                  'Mutuals Plus',
                   style: TextStyle(fontWeight: FontWeight.w800),
+                  color: AppColors.peach,
                 ),
               ),
             ),
@@ -67,12 +75,16 @@ class MyProfilePage extends ConsumerWidget {
               _Stat(
                 value: '${user.personalStreak}',
                 label: 'Racha',
-                emoji: '🔥',
+                icon: AppIcons.flame,
               ),
               const SizedBox(width: 10),
-              _Stat(value: '${user.gems}', label: 'Gemas', emoji: '💎'),
+              _Stat(value: '${user.gems}', label: 'Gemas', icon: AppIcons.gem),
               const SizedBox(width: 10),
-              _Stat(value: '${user.shields}', label: 'Escudos', emoji: '🛡️'),
+              _Stat(
+                value: '${user.shields}',
+                label: 'Escudos',
+                icon: AppIcons.shield,
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -83,95 +95,142 @@ class MyProfilePage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
-          ListTile(
-            leading: const Text('📸', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Recuerdos',
-              style: TextStyle(fontWeight: FontWeight.w700),
+          Glass(
+            radius: 26,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.camera,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Recuerdos',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/moments'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.film,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Mi Wrapped',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/wrapped'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.star,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: Text(
+                    user.premium ? 'Mutuals Plus (activo)' : 'Mutuals Plus',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/plus'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.trophy,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Logros',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/achievements'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.target,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Desafíos de la semana',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/challenges'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.avatar,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Mi avatar',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/avatar'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.gem,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Billetera',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/wallet'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.mail,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Invitaciones de racha',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/invitations'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.history,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Historial de rachas',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/history'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.settings,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Ajustes',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/settings'),
+                ),
+              ],
             ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/moments'),
-          ),
-          ListTile(
-            leading: const Text('🎬', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Mi Wrapped',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/wrapped'),
-          ),
-          ListTile(
-            leading: const Text('⭐', style: TextStyle(fontSize: 24)),
-            title: Text(
-              user.premium ? 'Mutuals Plus (activo)' : 'Mutuals Plus',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/plus'),
-          ),
-          ListTile(
-            leading: const Text('🏆', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Logros',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/achievements'),
-          ),
-          ListTile(
-            leading: const Text('🎯', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Desafíos de la semana',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/challenges'),
-          ),
-          ListTile(
-            leading: const Text('🧑‍🎨', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Mi avatar',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/avatar'),
-          ),
-          ListTile(
-            leading: const Text('💎', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Billetera',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/wallet'),
-          ),
-          ListTile(
-            leading: const Text('💌', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Invitaciones de racha',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/invitations'),
-          ),
-          ListTile(
-            leading: const Text('📜', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Historial de rachas',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/history'),
-          ),
-          ListTile(
-            leading: const Text('⚙️', style: TextStyle(fontSize: 24)),
-            title: const Text(
-              'Ajustes',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('/settings'),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -194,11 +253,11 @@ class MyProfilePage extends ConsumerWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label, required this.emoji});
+  const _Stat({required this.value, required this.label, required this.icon});
 
   final String value;
   final String label;
-  final String emoji;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -207,15 +266,22 @@ class _Stat extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: AppColors.sky,
+          color: AppColors.glassSky,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.glassBorder),
         ),
         child: Column(
           children: [
-            AnimatedCount(
-              value: int.tryParse(value) ?? 0,
-              prefix: '$emoji ',
-              style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: AppColors.peach, size: 22),
+                const SizedBox(width: 6),
+                AnimatedCount(
+                  value: int.tryParse(value) ?? 0,
+                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                ),
+              ],
             ),
             Text(label, style: text.bodySmall),
           ],

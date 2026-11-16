@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,7 +40,7 @@ class MutualsPage extends ConsumerWidget {
                   children: const [
                     SizedBox(height: 120),
                     EmptyState(
-                      emoji: '🤝',
+                      icon: AppIcons.handshake,
                       title: 'Aún no tienes mutuals',
                       message: 'Busca a tus amigos y síguelos. Cuando ellos te sigan también, serán mutuals.',
                     ),
@@ -84,8 +87,11 @@ class _MutualTile extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final streak = card.streak;
     return Material(
-      color: AppColors.peachLight,
-      borderRadius: BorderRadius.circular(24),
+      color: AppColors.glass,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: AppColors.glassBorder),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: () => context.push('/users/${card.friend.id}'),
@@ -130,7 +136,11 @@ class _MutualTile extends ConsumerWidget {
               else if (streak != null)
                 Column(
                   children: [
-                    const Text('🔥', style: TextStyle(fontSize: 26)),
+                    const Icon(
+                      AppIcons.flame,
+                      size: 26,
+                      color: AppColors.peach,
+                    ),
                     Text(
                       '${streak.currentLength}',
                       style: text.titleMedium?.copyWith(
@@ -151,16 +161,16 @@ class _MutualTile extends ConsumerWidget {
     final Color color;
     if (streak == null) {
       label = card.invitationPending ? 'Invitación enviada' : 'Sin racha';
-      color = Colors.white;
+      color = AppColors.glass;
     } else if (streak.atRisk) {
       label = 'En riesgo';
-      color = const Color(0xFFFFB4A8);
+      color = const Color(0x4DFF6B5B);
     } else if (streak.countedToday) {
       label = 'Hecha hoy';
-      color = AppColors.sky;
+      color = AppColors.glassSky;
     } else {
       label = 'Pendiente hoy';
-      color = Colors.white;
+      color = AppColors.glass;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

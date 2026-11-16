@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import '../../../shared/motion/confetti.dart';
 import '../../../shared/motion/haptics.dart';
 
@@ -13,7 +16,6 @@ Future<void> showCheckInSuccess(
   Haptics.success();
   return showModalBottomSheet<void>(
     context: context,
-    backgroundColor: AppColors.cream,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
     ),
@@ -31,7 +33,7 @@ Future<void> showCheckInSuccess(
             child: ConfettiBurst(),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -41,7 +43,11 @@ Future<void> showCheckInSuccess(
                   curve: Curves.elasticOut,
                   builder: (_, t, child) =>
                       Transform.scale(scale: t, child: child),
-                  child: const Text('🔥', style: TextStyle(fontSize: 84)),
+                  child: const Icon(
+                    AppIcons.flame,
+                    size: 84,
+                    color: AppColors.peach,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -29,7 +32,7 @@ class PendingInteractionsPage extends ConsumerWidget {
         ),
         data: (list) => list.isEmpty
             ? const EmptyState(
-                emoji: '✅',
+                icon: AppIcons.check,
                 title: 'Todo al día',
                 message: 'Cuando un amigo registre una interacción contigo, aparecerá aquí.',
               )
@@ -91,8 +94,9 @@ class _PendingCardState extends ConsumerState<_PendingCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.peachLight,
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +121,7 @@ class _PendingCardState extends ConsumerState<_PendingCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.glass,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text('“$note”'),

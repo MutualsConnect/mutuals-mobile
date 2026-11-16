@@ -77,8 +77,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
         width: 84,
         height: 84,
         decoration: BoxDecoration(
-          color: AppColors.sky,
+          color: AppColors.glassSky,
           borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: AppColors.glassBorder),
         ),
         child: const Icon(Icons.mark_email_read_outlined, size: 42),
       ),

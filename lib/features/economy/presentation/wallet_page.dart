@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -71,9 +74,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       await ref.read(economyRepositoryProvider).purchaseShields(_quantity);
       if (!mounted) return;
       _toast(
-        _quantity == 1
-            ? '¡Escudo comprado! 🛡️'
-            : '¡$_quantity escudos comprados! 🛡️',
+        _quantity == 1 ? '¡Escudo comprado!' : '¡$_quantity escudos comprados!',
       );
       setState(() => _quantity = 1);
       await _afterChange();
@@ -87,7 +88,6 @@ class _WalletPageState extends ConsumerState<WalletPage> {
   Future<void> _gift() async {
     final friend = await showModalBottomSheet<UserSummary>(
       context: context,
-      backgroundColor: AppColors.cream,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -117,7 +117,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     try {
       await ref.read(economyRepositoryProvider).giftShield(friend.id);
       if (!mounted) return;
-      _toast('Le regalaste un escudo a ${friend.displayName} 🎁');
+      _toast('Le regalaste un escudo a ${friend.displayName}');
       await _afterChange();
     } on ApiException catch (e) {
       if (mounted) _toast(e.message);
@@ -161,9 +161,13 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         children: [
           Row(
             children: [
-              _Balance(emoji: '💎', value: wallet.gems, label: 'Gemas'),
+              _Balance(icon: AppIcons.gem, value: wallet.gems, label: 'Gemas'),
               const SizedBox(width: 12),
-              _Balance(emoji: '🛡️', value: wallet.shields, label: 'Escudos'),
+              _Balance(
+                icon: AppIcons.shield,
+                value: wallet.shields,
+                label: 'Escudos',
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -173,15 +177,16 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Cada escudo cuesta ${wallet.shieldPriceGems} 💎 y protege una racha un día.',
+            'Cada escudo cuesta ${wallet.shieldPriceGems} gemas y protege una racha un día.',
             style: text.bodyMedium?.copyWith(color: AppColors.inkSoft),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.peachLight,
+              color: AppColors.glass,
               borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.glassBorder),
             ),
             child: Column(
               children: [
@@ -227,13 +232,13 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 const SizedBox(height: 8),
                 FilledButton(
                   onPressed: _busy || !canBuy ? null : () => _buy(wallet),
-                  child: Text('Comprar por $cost 💎'),
+                  child: Text('Comprar por $cost gemas'),
                 ),
                 if (!canBuy)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'Te faltan ${cost - wallet.gems} 💎. Gana gemas completando semanas de racha.',
+                      'Te faltan ${cost - wallet.gems} gemas. Gana gemas completando semanas de racha.',
                       textAlign: TextAlign.center,
                       style: text.bodySmall,
                     ),
@@ -263,7 +268,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           const SizedBox(height: 8),
           if (_history.isEmpty && !_historyLoading)
             const EmptyState(
-              emoji: '🧾',
+              icon: AppIcons.receipt,
               title: 'Sin movimientos',
               message: 'Tus compras, regalos y ganancias aparecerán aquí.',
             )
@@ -289,12 +294,12 @@ class _WalletPageState extends ConsumerState<WalletPage> {
 
 class _Balance extends StatelessWidget {
   const _Balance({
-    required this.emoji,
+    required this.icon,
     required this.value,
     required this.label,
   });
 
-  final String emoji;
+  final IconData icon;
   final int value;
   final String label;
 
@@ -305,12 +310,13 @@ class _Balance extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.sky,
+          color: AppColors.glassSky,
           borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: AppColors.glassBorder),
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 34)),
+            Icon(icon, size: 34, color: AppColors.peach),
             const SizedBox(height: 4),
             AnimatedCount(
               value: value,
@@ -336,7 +342,7 @@ class _TransactionTile extends StatelessWidget {
     final who = t.counterpartyUsername;
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Text(t.currencyEmoji, style: const TextStyle(fontSize: 26)),
+      leading: Icon(t.currencyIcon, color: AppColors.peach),
       title: Text(t.title, style: const TextStyle(fontWeight: FontWeight.w800)),
       subtitle: Text(
         [if (who != null) '@$who', timeAgo(t.createdAt)].join(' · '),
@@ -346,7 +352,7 @@ class _TransactionTile extends StatelessWidget {
         style: TextStyle(
           fontWeight: FontWeight.w900,
           fontSize: 18,
-          color: positive ? const Color(0xFF2E7D4F) : AppColors.danger,
+          color: positive ? const Color(0xFF7DDBA3) : AppColors.danger,
         ),
       ),
     );

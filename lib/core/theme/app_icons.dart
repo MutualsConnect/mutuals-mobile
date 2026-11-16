@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+
+/// Iconos monocromáticos de Mutuals (en lugar de emojis).
+abstract final class AppIcons {
+  static const flame = Icons.local_fire_department_rounded;
+  static const gem = Icons.diamond_outlined;
+  static const shield = Icons.shield_outlined;
+  static const check = Icons.check_circle_outline_rounded;
+  static const mail = Icons.mark_email_unread_outlined;
+  static const camera = Icons.photo_camera_outlined;
+  static const scan = Icons.qr_code_scanner_rounded;
+  static const chat = Icons.chat_bubble_outline_rounded;
+  static const compass = Icons.explore_outlined;
+  static const pin = Icons.location_on_outlined;
+  static const receipt = Icons.receipt_long_outlined;
+  static const target = Icons.track_changes_rounded;
+  static const trophy = Icons.emoji_events_outlined;
+  static const medal = Icons.workspace_premium_outlined;
+  static const bolt = Icons.bolt_rounded;
+  static const handshake = Icons.handshake_outlined;
+  static const lock = Icons.lock_outline_rounded;
+  static const feed = Icons.dynamic_feed_outlined;
+  static const bag = Icons.shopping_bag_outlined;
+  static const star = Icons.star_outline_rounded;
+  static const sparkle = Icons.auto_awesome_outlined;
+  static const avatar = Icons.face_outlined;
+  static const film = Icons.movie_filter_outlined;
+  static const history = Icons.history_rounded;
+  static const settings = Icons.settings_outlined;
+  static const search = Icons.search_rounded;
+  static const hidden = Icons.visibility_off_outlined;
+  static const inbox = Icons.inbox_outlined;
+  static const outbox = Icons.outbox_outlined;
+  static const sprout = Icons.spa_outlined;
+  static const calendar = Icons.calendar_month_outlined;
+  static const heart = Icons.favorite_border_rounded;
+  static const bell = Icons.notifications_none_rounded;
+  static const sad = Icons.sentiment_dissatisfied_outlined;
+  static const broken = Icons.heart_broken_outlined;
+  static const wave = Icons.waving_hand_outlined;
+  static const warning = Icons.warning_amber_rounded;
+  static const gift = Icons.card_giftcard_outlined;
+  static const palette = Icons.palette_outlined;
+  static const phone = Icons.smartphone_rounded;
+  static const hourglass = Icons.hourglass_empty_rounded;
+  static const hair = Icons.content_cut_rounded;
+  static const outfit = Icons.checkroom_outlined;
+  static const accessory = Icons.diamond_outlined;
+}

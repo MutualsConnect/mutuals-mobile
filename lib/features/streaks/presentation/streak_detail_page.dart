@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -59,7 +64,7 @@ class _ContentState extends ConsumerState<_Content> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Escudo activado: tu racha está protegida 🛡️'),
+            content: Text('Escudo activado: tu racha está protegida'),
           ),
         );
       }
@@ -92,7 +97,7 @@ class _ContentState extends ConsumerState<_Content> {
             children: [
               s.isActive
                   ? const AnimatedFlame(size: 88)
-                  : const Text('🪦', style: TextStyle(fontSize: 88)),
+                  : const Icon(AppIcons.broken, size: 88),
               Text(
                 '${value.round()}',
                 style: text.displayLarge?.copyWith(
@@ -111,8 +116,9 @@ class _ContentState extends ConsumerState<_Content> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.peachLight,
+            color: AppColors.glass,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.glassBorder),
           ),
           child: Row(
             children: [
@@ -145,12 +151,16 @@ class _ContentState extends ConsumerState<_Content> {
           children: [
             _Chip(
               s.isActive
-                  ? (s.countedToday ? '✅ Hecha hoy' : '⏳ Pendiente hoy')
-                  : '💔 Terminada',
+                  ? (s.countedToday ? 'Hecha hoy' : 'Pendiente hoy')
+                  : 'Terminada',
+              s.isActive
+                  ? (s.countedToday ? AppIcons.check : AppIcons.hourglass)
+                  : AppIcons.broken,
             ),
-            if (s.pure) const _Chip('✨ Pura'),
-            if (s.shieldArmed) const _Chip('🛡️ Escudo activo'),
-            if (s.shieldsUsed > 0) _Chip('🛡️ ${s.shieldsUsed} usados'),
+            if (s.pure) const _Chip('Pura', AppIcons.sparkle),
+            if (s.shieldArmed) const _Chip('Escudo activo', AppIcons.shield),
+            if (s.shieldsUsed > 0)
+              _Chip('${s.shieldsUsed} usados', AppIcons.shield),
           ],
         ),
         const SizedBox(height: 16),
@@ -191,18 +201,24 @@ class _ContentState extends ConsumerState<_Content> {
 }
 
 class _Chip extends StatelessWidget {
-  const _Chip(this.label);
+  const _Chip(this.label, this.icon);
 
   final String label;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
-      color: AppColors.sky,
+      color: AppColors.glassSky,
       borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: AppColors.glassBorder),
     ),
-    child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+    child: IconText(
+      icon,
+      label,
+      style: const TextStyle(fontWeight: FontWeight.w700),
+    ),
   );
 }
 

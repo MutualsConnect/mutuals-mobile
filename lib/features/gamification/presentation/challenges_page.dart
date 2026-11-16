@@ -1,6 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/icon_text.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,7 +50,7 @@ class ChallengesPage extends ConsumerWidget {
                   children: const [
                     SizedBox(height: 100),
                     EmptyState(
-                      emoji: '🎯',
+                      icon: AppIcons.target,
                       title: 'Sin desafíos esta semana',
                       message: 'Cada lunes recibes un desafío para hacer con tus rachas activas.',
                     ),
@@ -73,16 +78,19 @@ class _ChallengeCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final c = challenge;
     final (label, color) = switch (c.status) {
-      ChallengeStatus.completed => ('Completado 🎉', AppColors.sky),
-      ChallengeStatus.expired => ('Expirado', Colors.white),
+      ChallengeStatus.completed => ('Completado', AppColors.glassSky),
+      ChallengeStatus.expired => ('Expirado', AppColors.glass),
       ChallengeStatus.open =>
         c.submittedByMe
-            ? ('Esperando a ${c.friend.displayName}', AppColors.sky)
-            : ('Pendiente', Colors.white),
+            ? ('Esperando a ${c.friend.displayName}', AppColors.glassSky)
+            : ('Pendiente', AppColors.glass),
     };
     return Material(
-      color: AppColors.peachLight,
-      borderRadius: BorderRadius.circular(24),
+      color: AppColors.glass,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: AppColors.glassBorder),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: () => context.push('/challenges/${c.id}'),
@@ -90,7 +98,7 @@ class _ChallengeCard extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              Text(c.template.emoji, style: const TextStyle(fontSize: 34)),
+              Icon(c.template.icon, size: 32, color: AppColors.peach),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -126,8 +134,9 @@ class _ChallengeCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                '+${c.template.rewardGems} 💎',
+              IconText(
+                AppIcons.gem,
+                '+${c.template.rewardGems}',
                 style: text.titleSmall?.copyWith(fontWeight: FontWeight.w900),
               ),
             ],
@@ -217,7 +226,7 @@ class _DetailState extends ConsumerState<_Detail> {
       ref.read(authControllerProvider.notifier).refreshUser();
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('¡Enviado! 🎯')));
+            .showSnackBar(const SnackBar(content: Text('¡Enviado!')));
       }
     } on ApiException catch (e) {
       if (mounted) {
@@ -237,9 +246,7 @@ class _DetailState extends ConsumerState<_Detail> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       children: [
-        Center(
-          child: Text(c.template.emoji, style: const TextStyle(fontSize: 64)),
-        ),
+        Center(child: Icon(c.template.icon, size: 60, color: AppColors.peach)),
         const SizedBox(height: 8),
         Text(
           c.template.title,
@@ -256,8 +263,9 @@ class _DetailState extends ConsumerState<_Detail> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.peachLight,
+            color: AppColors.glass,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.glassBorder),
           ),
           child: Row(
             children: [
@@ -269,8 +277,9 @@ class _DetailState extends ConsumerState<_Detail> {
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
-              Text(
-                '+${c.template.rewardGems} 💎',
+              IconText(
+                AppIcons.gem,
+                '+${c.template.rewardGems}',
                 style: const TextStyle(fontWeight: FontWeight.w900),
               ),
             ],
@@ -347,7 +356,7 @@ class _SubmissionTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -359,7 +368,10 @@ class _SubmissionTile extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           if (!s.revealed)
-            const Text('🔒 Se mostrará cuando ambos cumplan el desafío.')
+            const IconText(
+              AppIcons.lock,
+              'Se mostrará cuando ambos cumplan el desafío.',
+            )
           else ...[
             if (s.content != null && s.content!.isNotEmpty) Text(s.content!),
             if (s.photoUrl != null) ...[
@@ -372,7 +384,7 @@ class _SubmissionTile extends StatelessWidget {
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) =>
-                      const Text('📷 Foto no disponible'),
+                      const IconText(AppIcons.camera, 'Foto no disponible'),
                 ),
               ),
             ],

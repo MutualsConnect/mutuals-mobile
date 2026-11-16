@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_icons.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -92,9 +95,10 @@ class _PlusPageState extends ConsumerState<PlusPage> {
       padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
       children: [
         Center(
-          child: Text(
-            sub.isPlus ? '⭐' : '✨',
-            style: const TextStyle(fontSize: 64),
+          child: Icon(
+            sub.isPlus ? AppIcons.star : AppIcons.sparkle,
+            size: 60,
+            color: AppColors.peach,
           ),
         ),
         const SizedBox(height: 8),
@@ -117,8 +121,9 @@ class _PlusPageState extends ConsumerState<PlusPage> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppColors.peachLight,
+            color: AppColors.glass,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.glassBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +139,12 @@ class _PlusPageState extends ConsumerState<PlusPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('✅  '),
+                      const Icon(
+                        AppIcons.check,
+                        size: 20,
+                        color: AppColors.peach,
+                      ),
+                      const SizedBox(width: 10),
                       Expanded(child: Text(b)),
                     ],
                   ),
@@ -149,7 +159,7 @@ class _PlusPageState extends ConsumerState<PlusPage> {
                 ? null
                 : () => _run(
                     (r) async => r.subscribe(BillingPeriod.monthly),
-                    success: '¡Bienvenida a Plus! ⭐',
+                    success: '¡Bienvenida a Plus!',
                   ),
             child: const Text('Suscribirme · Mensual'),
           ),
@@ -159,7 +169,7 @@ class _PlusPageState extends ConsumerState<PlusPage> {
                 ? null
                 : () => _run(
                     (r) async => r.subscribe(BillingPeriod.yearly),
-                    success: '¡Bienvenida a Plus! ⭐',
+                    success: '¡Bienvenida a Plus!',
                   ),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(54),

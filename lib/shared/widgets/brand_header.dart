@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_icons.dart';
+
 import '../../core/theme/app_colors.dart';
 
 /// Logo provisional de Mutuals con una entrada animada.
@@ -29,7 +31,11 @@ class BrandHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
             ),
             alignment: Alignment.center,
-            child: const Text('🔥', style: TextStyle(fontSize: 46)),
+            child: const Icon(
+              AppIcons.flame,
+              size: 52,
+              color: AppColors.onAccent,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
