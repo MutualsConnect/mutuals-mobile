@@ -27,12 +27,12 @@ Cubre las funciones principales de la API del backend (el panel de administraci�
 
 | Área | Qué hace la app |
 | --- | --- |
-| **Cuenta** | Registro, inicio de sesión, recuperar contraseña, sesión que se restaura sola y renovación automática de tokens |
-| **Social** | Buscar personas, seguir, dejar de seguir (con aviso si hay una racha activa), perfil público, lista de mutuals, editar tu perfil, bloquear y reportar |
+| **Cuenta** | Registro, inicio de sesión (correo o **Google**), recuperar y restablecer la contraseña con el código del correo, sesión que se restaura sola y renovación automática de tokens |
+| **Social** | Buscar personas, seguir, dejar de seguir (con aviso si hay una racha activa), perfil público con sus logros, **seguidores y siguiendo**, lista de mutuals, editar tu perfil, bloquear (con lista de **usuarios bloqueados**) y reportar |
 | **Rachas** | Invitaciones (enviar, aceptar, rechazar, cancelar), rachas activas en el inicio, detalle con contador animado, escudos e historial |
-| **Interacciones** | Confirmación manual con nota, **código QR rotativo** (mostrar y escanear), **proximidad por GPS** y **momentos de foto**; confirmar o rechazar lo que registran tus amigos |
+| **Interacciones** | Confirmación manual con nota, **código QR rotativo** (mostrar y escanear), **proximidad por GPS** y **momentos de foto**; confirmar o rechazar lo que registran tus amigos, e **historial de interacciones** |
 | **Momentos de foto** | Una persona lanza un momento y las dos tienen 2 minutos para tomar una foto de lo que hacen; al llegar ambas, la racha se confirma sola y se revelan las fotos juntas. Los momentos completados quedan en **Recuerdos** |
-| **Ajustes** | Preferencias de notificaciones y privacidad, dispositivos registrados y eliminar la cuenta |
+| **Ajustes y perfil** | Preferencias de notificaciones y privacidad (al activar la ubicación se envía tu posición para detectar mutuals cerca), dispositivos registrados, **personalizar** tema, fuego e ícono (Plus) y eliminar la cuenta |
 | **Notificaciones** | Lista paginada con filtro de importantes, contador de no leídas en la campana y acceso directo a cada pantalla |
 | **Economía** | Billetera de gemas y escudos, compra de escudos, regalos a mutuals e historial |
 | **Gamificación** | Logros, tienda de avatar por capas y desafíos semanales (texto y foto) |
@@ -68,7 +68,17 @@ campo, de modo que las pantallas solo muestran el texto.
 
 ## Ejecutar
 
-Requisitos: Flutter 3.47+, y Xcode (simulador de iPhone) o Android Studio.
+Requisitos: Flutter 3.47+, y Xcode (simulador de iPhone) o Android Studio. Para el backend: Java 21, Maven y Docker Desktop.
+
+**1. Levantar el backend** (en la carpeta de [mutuals-backend](https://github.com/MutualsConnect/mutuals-backend)):
+
+```bash
+cp .env.example .env              # primera vez; cambia JWT_SECRET y QR_SECRET
+docker compose up -d db mail      # PostgreSQL y Mailpit (correos de prueba en http://localhost:8025)
+mvn spring-boot:run               # API en http://localhost:8080
+```
+
+**2. Ejecutar la app:**
 
 ```bash
 flutter pub get
@@ -82,8 +92,34 @@ servidor, por ejemplo el desplegado en AWS:
 flutter run --dart-define=API_URL=https://tu-servidor/api/v1
 ```
 
-El backend se levanta con Docker y Maven; las instrucciones están en el README de
-[mutuals-backend](https://github.com/MutualsConnect/mutuals-backend).
+### En un iPhone real
+
+El iPhone y la computadora deben estar en la **misma red wifi**. Conecta el teléfono, desbloquéalo y toca «Confiar»;
+luego usa la IP de tu computadora (en Mac: `ipconfig getifaddr en0`) y su id (`flutter devices`):
+
+```bash
+flutter run -d <id-del-iphone> --dart-define=API_URL=http://<IP-DE-TU-MAC>:8080/api/v1
+```
+
+La primera vez hay que abrir `ios/Runner.xcworkspace` en Xcode y elegir tu equipo de desarrollo y un
+identificador propio en *Signing & Capabilities*; esos ajustes son personales y no se suben al repositorio.
+
+### Iniciar sesión con Google
+
+El botón «Continuar con Google» solo aparece si se compila con el Client ID de Google Cloud (el mismo de tipo
+«Aplicación web» que usa el backend en `GOOGLE_CLIENT_ID`):
+
+```bash
+flutter run --dart-define=GOOGLE_SERVER_CLIENT_ID=xxxx.apps.googleusercontent.com \
+            --dart-define=GOOGLE_IOS_CLIENT_ID=yyyy.apps.googleusercontent.com
+```
+
+En iOS además hay que registrar el esquema de URL invertido del Client ID de iOS en `ios/Runner/Info.plist`.
+
+### Restablecer la contraseña
+
+En «¿Olvidaste tu contraseña?» se pide el correo; el código llega a la bandeja (en desarrollo, a Mailpit en
+`http://localhost:8025`). Con «Ya tengo el código» se pega el código y se elige la nueva contraseña.
 
 > En desarrollo se permite HTTP hacia el backend local. Para publicar la app hay que usar HTTPS.
 
@@ -112,8 +148,8 @@ MUTUALS_E2E=1 flutter test test/integration/backend_smoke_test.dart
 - **Android:** el proyecto está configurado (permisos, ícono y pantalla de inicio), pero las pruebas visuales se
   hicieron en el simulador de iPhone.
 - El backend aún no entrega imágenes para los ítems de avatar, así que se representan con emojis.
-- **Pendiente en la app:** personalización del perfil con temas (Plus) y cambiar la foto de perfil (el backend aún no
-  tiene endpoint para subirla). Restablecer la contraseña se completa desde el enlace del correo.
+- **Pendiente en la app:** cambiar la foto de perfil (el backend aún no tiene endpoint para subirla), el Wrapped
+  por periodo, de plataforma y por amigo, y el inicio de sesión con Google en iOS hasta contar con los Client ID.
 
 ## Autoría y repositorios
 
