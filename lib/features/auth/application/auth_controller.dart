@@ -58,6 +58,11 @@ class AuthController extends Notifier<AuthState> {
     state = AuthState(status: AuthStatus.authenticated, user: user);
   }
 
+  Future<void> loginWithGoogle(String idToken) async {
+    final user = await _repo.loginWithGoogle(idToken);
+    state = AuthState(status: AuthStatus.authenticated, user: user);
+  }
+
   Future<void> register({
     required String email,
     required String username,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/google_sign_in_service.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
@@ -51,9 +52,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
+  Future<void> _google() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final idToken = await ref.read(googleSignInServiceProvider).idToken();
+      if (idToken == null) return; // La persona canceló.
+      await ref.read(authControllerProvider.notifier).loginWithGoogle(idToken);
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'No se pudo iniciar sesión con Google.');
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final googleEnabled = ref.watch(googleSignInServiceProvider).isConfigured;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -104,6 +127,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       loading: _loading,
                       onPressed: _submit,
                     ),
+                    if (googleEnabled) ...[
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _loading ? null : _google,
+                        icon: const Icon(Icons.g_mobiledata_rounded, size: 30),
+                        label: const Text('Continuar con Google'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(54),
+                          foregroundColor: AppColors.ink,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     Wrap(
                       alignment: WrapAlignment.center,

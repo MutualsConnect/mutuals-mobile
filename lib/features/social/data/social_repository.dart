@@ -20,6 +20,30 @@ class SocialRepository {
   Future<PublicProfile> profile(int userId) async =>
       PublicProfile.fromJson(await _get('/users/$userId'));
 
+  Future<PublicProfile> profileByUsername(String username) async =>
+      PublicProfile.fromJson(
+        await _get('/users/by-username/${Uri.encodeComponent(username)}'),
+      );
+
+  Future<PageResponse<UserSummary>> followers(int userId, {int page = 0}) async =>
+      PageResponse.fromJson(
+        await _get('/users/$userId/followers', {'page': page}),
+        UserSummary.fromJson,
+      );
+
+  Future<PageResponse<UserSummary>> following(int userId, {int page = 0}) async =>
+      PageResponse.fromJson(
+        await _get('/users/$userId/following', {'page': page}),
+        UserSummary.fromJson,
+      );
+
+  /// Usuarios que bloqueaste.
+  Future<PageResponse<UserSummary>> blocked({int page = 0}) async =>
+      PageResponse.fromJson(
+        await _get('/blocks', {'page': page}),
+        UserSummary.fromJson,
+      );
+
   Future<List<MutualCard>> mutuals() async {
     final response = await _guard(() => _dio.get<List<dynamic>>('/mutuals'));
     return response!
@@ -72,6 +96,20 @@ final mutualsProvider = FutureProvider.autoDispose<List<MutualCard>>(
 
 final profileProvider = FutureProvider.autoDispose.family<PublicProfile, int>(
   (ref, id) => ref.watch(socialRepositoryProvider).profile(id),
+);
+
+final followersProvider = FutureProvider.autoDispose
+    .family<PageResponse<UserSummary>, int>(
+      (ref, id) => ref.watch(socialRepositoryProvider).followers(id),
+    );
+
+final followingProvider = FutureProvider.autoDispose
+    .family<PageResponse<UserSummary>, int>(
+      (ref, id) => ref.watch(socialRepositoryProvider).following(id),
+    );
+
+final blockedProvider = FutureProvider.autoDispose<PageResponse<UserSummary>>(
+  (ref) => ref.watch(socialRepositoryProvider).blocked(),
 );
 
 final searchProvider = FutureProvider.autoDispose

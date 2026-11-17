@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
+import '../../../core/network/page_response.dart';
 import '../../../core/network/providers.dart';
 import 'models/interaction_models.dart';
 
@@ -46,6 +47,34 @@ class InteractionRepository {
         .toList();
   }
 
+  /// Historial de tus interacciones, de la más reciente a la más antigua.
+  Future<PageResponse<Interaction>> timeline({int page = 0}) async =>
+      PageResponse.fromJson(
+        (await _guard(
+          () => _dio.get<Map<String, dynamic>>(
+            '/interactions/timeline',
+            queryParameters: {'page': page},
+          ),
+        ))!,
+        Interaction.fromJson,
+      );
+
+  /// Envía tu ubicación para detectar mutuals cerca. Devuelve cuántos hay.
+  Future<void> updateLocation({
+    required double latitude,
+    required double longitude,
+    double? accuracyMeters,
+  }) => _guard(
+    () => _dio.post<void>(
+      '/locations',
+      data: {
+        'latitude': latitude,
+        'longitude': longitude,
+        'accuracyMeters': ?accuracyMeters,
+      },
+    ),
+  );
+
   Future<MyQrCode> myQr() async => MyQrCode.fromJson(
     (await _guard(() => _dio.get<Map<String, dynamic>>('/qr-codes/me')))!,
   );
@@ -88,6 +117,10 @@ class InteractionRepository {
 
 final interactionRepositoryProvider = Provider<InteractionRepository>(
   (ref) => InteractionRepository(ref.watch(dioProvider)),
+);
+
+final timelineProvider = FutureProvider.autoDispose<PageResponse<Interaction>>(
+  (ref) => ref.watch(interactionRepositoryProvider).timeline(),
 );
 
 final pendingInteractionsProvider =

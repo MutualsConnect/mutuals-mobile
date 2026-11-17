@@ -54,6 +54,16 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> requestPasswordReset(String email) async {}
+
+  @override
+  Future<UserProfile> loginWithGoogle(String idToken) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {}
 }
 
 Future<void> _pumpApp(WidgetTester tester, _FakeAuthRepository repo) async {

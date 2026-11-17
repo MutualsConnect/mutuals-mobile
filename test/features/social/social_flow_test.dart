@@ -39,6 +39,16 @@ class _FakeAuth implements AuthRepository {
   Future<void> logout() async {}
   @override
   Future<void> requestPasswordReset(String email) async {}
+
+  @override
+  Future<UserProfile> loginWithGoogle(String idToken) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {}
 }
 
 Future<void> _pump(WidgetTester tester, FakeSocialRepository social) async {
@@ -107,7 +117,7 @@ void main() {
     expect(find.text('Seguir también'), findsOneWidget);
     await tester.tap(find.text('Seguir también'));
     await tester.pumpAndSettle();
-    expect(social.following, isTrue);
+    expect(social.isFollowing, isTrue);
     expect(find.widgetWithText(OutlinedButton, 'Siguiendo'), findsOneWidget);
   });
 
@@ -115,7 +125,7 @@ void main() {
     tester,
   ) async {
     final social = FakeSocialRepository(unfollowNeedsConfirm: true)
-      ..following = true;
+      ..isFollowing = true;
     await _pump(tester, social);
     await tester.tap(find.text('Buscar').last);
     await tester.pumpAndSettle();

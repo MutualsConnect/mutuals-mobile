@@ -45,6 +45,16 @@ class _Auth implements AuthRepository {
   Future<void> logout() async {}
   @override
   Future<void> requestPasswordReset(String email) async {}
+
+  @override
+  Future<UserProfile> loginWithGoogle(String idToken) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {}
 }
 
 Future<void> _open(
