@@ -9,6 +9,10 @@ import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/presentation/forgot_password_page.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/register_page.dart';
+import '../../features/auth/presentation/reset_password_page.dart';
+import '../../features/interactions/presentation/timeline_page.dart';
+import '../../features/social/presentation/customization_page.dart';
+import '../../features/social/presentation/user_list_page.dart';
 import '../../features/economy/presentation/wallet_page.dart';
 import '../../features/subscription/presentation/plus_page.dart';
 import '../../features/wrapped/data/models/wrapped_models.dart';
@@ -68,13 +72,14 @@ abstract final class Routes {
   static const login = '/login';
   static const register = '/register';
   static const forgotPassword = '/forgot-password';
+  static const resetPassword = '/reset-password';
   static const home = '/';
   static const mutuals = '/mutuals';
   static const feed = '/feed';
   static const search = '/search';
   static const me = '/me';
 
-  static const _public = {login, register, forgotPassword};
+  static const _public = {login, register, forgotPassword, resetPassword};
 }
 
 /// Avisa al router cuando cambia el estado de la sesión.
@@ -114,6 +119,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.forgotPassword,
         builder: (_, _) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
+        path: Routes.resetPassword,
+        builder: (_, state) =>
+            ResetPasswordPage(token: state.uri.queryParameters['token']),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
@@ -224,6 +234,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/streaks/:id',
         builder: (_, state) =>
             StreakDetailPage(streakId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(path: '/timeline', builder: (_, _) => const TimelinePage()),
+      GoRoute(
+        path: '/customization',
+        builder: (_, _) => const CustomizationPage(),
+      ),
+      GoRoute(path: '/blocked', builder: (_, _) => const BlockedUsersPage()),
+      GoRoute(
+        path: '/users/:id/followers',
+        builder: (_, state) => FollowListPage(
+          userId: int.parse(state.pathParameters['id']!),
+          followers: true,
+        ),
+      ),
+      GoRoute(
+        path: '/users/:id/following',
+        builder: (_, state) => FollowListPage(
+          userId: int.parse(state.pathParameters['id']!),
+          followers: false,
+        ),
       ),
       GoRoute(
         path: '/users/:id',

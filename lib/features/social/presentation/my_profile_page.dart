@@ -205,6 +205,32 @@ class MyProfilePage extends ConsumerWidget {
                 ),
                 ListTile(
                   leading: const Icon(
+                    AppIcons.check,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Historial de interacciones',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/timeline'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    AppIcons.star,
+                    size: 24,
+                    color: AppColors.peach,
+                  ),
+                  title: const Text(
+                    'Personalizar',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/customization'),
+                ),
+                ListTile(
+                  leading: const Icon(
                     AppIcons.history,
                     size: 24,
                     color: AppColors.peach,

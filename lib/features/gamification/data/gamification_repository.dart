@@ -18,6 +18,16 @@ class GamificationRepository {
         .toList();
   }
 
+  /// Logros que otra persona tiene desbloqueados (perfil público).
+  Future<List<Achievement>> unlockedBy(int userId) async {
+    final data = await _guard(
+      () => _dio.get<List<dynamic>>('/users/$userId/achievements'),
+    );
+    return data!
+        .map((e) => Achievement.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<List<AvatarItem>> avatarItems() async {
     final data = await _guard(() => _dio.get<List<dynamic>>('/avatar-items'));
     return data!
@@ -87,6 +97,11 @@ final gamificationRepositoryProvider = Provider<GamificationRepository>(
 final achievementsProvider = FutureProvider.autoDispose<List<Achievement>>(
   (ref) => ref.watch(gamificationRepositoryProvider).achievements(),
 );
+
+final userAchievementsProvider = FutureProvider.autoDispose
+    .family<List<Achievement>, int>(
+      (ref, id) => ref.watch(gamificationRepositoryProvider).unlockedBy(id),
+    );
 
 final avatarItemsProvider = FutureProvider.autoDispose<List<AvatarItem>>(
   (ref) => ref.watch(gamificationRepositoryProvider).avatarItems(),

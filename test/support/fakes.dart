@@ -33,7 +33,7 @@ class FakeSocialRepository extends SocialRepository {
 
   final List<MutualCard> mutualList;
   final bool unfollowNeedsConfirm;
-  bool following = false;
+  bool isFollowing = false;
   final unfollowCalls = <bool>[];
 
   static const luis = UserSummary(
@@ -62,14 +62,14 @@ class FakeSocialRepository extends SocialRepository {
     id: userId,
     username: 'luis',
     displayName: 'Luis Vega',
-    followedByMe: following,
+    followedByMe: isFollowing,
     followsMe: true,
     followers: 2,
   );
 
   @override
   Future<FollowResult> follow(int userId) async {
-    following = true;
+    isFollowing = true;
     return const FollowResult(following: true, mutual: true);
   }
 
@@ -82,7 +82,7 @@ class FakeSocialRepository extends SocialRepository {
         statusCode: 409,
       );
     }
-    following = false;
+    isFollowing = false;
   }
 }
 

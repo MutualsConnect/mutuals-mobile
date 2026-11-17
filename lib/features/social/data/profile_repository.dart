@@ -57,6 +57,25 @@ class Device {
 }
 
 /// Edición del perfil propio, preferencias, dispositivos, bloqueos y reportes.
+/// Personalización del perfil (`CustomizationResponse`).
+class Customization {
+  const Customization({
+    required this.theme,
+    required this.fireStyle,
+    required this.appIcon,
+  });
+
+  final String theme;
+  final String fireStyle;
+  final String appIcon;
+
+  factory Customization.fromJson(Map<String, dynamic> json) => Customization(
+    theme: json['theme'] as String? ?? 'DEFAULT',
+    fireStyle: json['fireStyle'] as String? ?? 'CLASSIC',
+    appIcon: json['appIcon'] as String? ?? 'DEFAULT',
+  );
+}
+
 class ProfileRepository {
   ProfileRepository(this._dio);
 
@@ -122,6 +141,37 @@ class ProfileRepository {
   /// Anonimiza y cierra tu cuenta en el servidor.
   Future<void> deleteAccount() => _guard(() => _dio.delete<void>('/users/me'));
 
+  Future<Customization> customization() async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/users/me/customization',
+      );
+      return Customization.fromJson(res.data!);
+    } on DioException catch (e) {
+      throw e.apiException;
+    }
+  }
+
+  Future<Customization> updateCustomization({
+    String? theme,
+    String? fireStyle,
+    String? appIcon,
+  }) async {
+    try {
+      final res = await _dio.patch<Map<String, dynamic>>(
+        '/users/me/customization',
+        data: {
+          'theme': ?theme,
+          'fireStyle': ?fireStyle,
+          'appIcon': ?appIcon,
+        },
+      );
+      return Customization.fromJson(res.data!);
+    } on DioException catch (e) {
+      throw e.apiException;
+    }
+  }
+
   Future<void> block(int userId) =>
       _guard(() => _dio.post<void>('/users/$userId/block'));
 
@@ -160,4 +210,8 @@ final preferencesProvider = FutureProvider.autoDispose<Preferences>(
 
 final devicesProvider = FutureProvider.autoDispose<List<Device>>(
   (ref) => ref.watch(profileRepositoryProvider).devices(),
+);
+
+final customizationProvider = FutureProvider.autoDispose<Customization>(
+  (ref) => ref.watch(profileRepositoryProvider).customization(),
 );

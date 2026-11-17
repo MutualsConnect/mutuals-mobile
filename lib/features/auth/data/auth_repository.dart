@@ -32,6 +32,21 @@ class AuthRepository {
     'password': password,
   });
 
+  /// Inicia sesión con el ID token que entrega Google Sign-In.
+  Future<UserProfile> loginWithGoogle(String idToken) =>
+      _authenticate('/auth/google', {'idToken': idToken});
+
+  /// Crea la nueva contraseña con el token que llegó por correo.
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) => _guard(
+    () => _dio.post<void>(
+      '/auth/password-reset/confirm',
+      data: {'token': token.trim(), 'newPassword': newPassword},
+    ),
+  );
+
   /// Si hay una sesión guardada, devuelve el usuario; si no, `null`.
   Future<UserProfile?> restoreSession() async {
     if (await _tokens.readRefreshToken() == null) return null;

@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
+import '../../gamification/data/gamification_repository.dart';
 import '../../streaks/data/streak_repository.dart';
 import '../data/models/social_models.dart';
 import '../data/profile_repository.dart';
@@ -200,11 +201,20 @@ class _ContentState extends ConsumerState<_Content> {
               icon: AppIcons.flame,
             ),
             const SizedBox(width: 10),
-            _Stat(value: '${p.followers}', label: 'Seguidores'),
+            _Stat(
+              value: '${p.followers}',
+              label: 'Seguidores',
+              onTap: () => context.push('/users/${p.id}/followers'),
+            ),
             const SizedBox(width: 10),
-            _Stat(value: '${p.following}', label: 'Siguiendo'),
+            _Stat(
+              value: '${p.following}',
+              label: 'Siguiendo',
+              onTap: () => context.push('/users/${p.id}/following'),
+            ),
           ],
         ),
+        _UnlockedAchievements(userId: p.id),
         const SizedBox(height: 24),
         following
             ? OutlinedButton(
@@ -237,17 +247,26 @@ class _ContentState extends ConsumerState<_Content> {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label, this.icon});
+  const _Stat({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.onTap,
+  });
 
   final String value;
   final String label;
   final IconData? icon;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Expanded(
-      child: Container(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.glass,
@@ -265,6 +284,7 @@ class _Stat extends StatelessWidget {
             ),
             Text(label, style: text.bodySmall),
           ],
+        ),
         ),
       ),
     );
@@ -420,6 +440,47 @@ class _ReportSheetState extends State<_ReportSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Logros que esta persona tiene desbloqueados.
+class _UnlockedAchievements extends ConsumerWidget {
+  const _UnlockedAchievements({required this.userId});
+
+  final int userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final list = ref.watch(userAchievementsProvider(userId)).asData?.value;
+    if (list == null || list.isEmpty) return const SizedBox.shrink();
+    final text = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Logros',
+            style: text.titleSmall?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final a in list)
+                Tooltip(
+                  message: a.description,
+                  child: Chip(
+                    avatar: const Icon(AppIcons.trophy, size: 16),
+                    label: Text(a.name),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

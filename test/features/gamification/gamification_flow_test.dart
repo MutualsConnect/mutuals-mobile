@@ -43,6 +43,16 @@ class _Auth implements AuthRepository {
   Future<void> logout() async {}
   @override
   Future<void> requestPasswordReset(String email) async {}
+
+  @override
+  Future<UserProfile> loginWithGoogle(String idToken) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {}
 }
 
 /// Abre la app y entra a una opción de la pestaña Perfil.

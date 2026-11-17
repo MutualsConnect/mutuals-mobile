@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_exception.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/error_banner.dart';
 import '../../../shared/widgets/loading_button.dart';
@@ -97,6 +98,11 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       ),
       const SizedBox(height: 32),
       FilledButton(
+        onPressed: () => context.push(Routes.resetPassword),
+        child: const Text('Ya tengo el código'),
+      ),
+      const SizedBox(height: 8),
+      TextButton(
         onPressed: () => context.pop(),
         child: const Text('Volver al inicio de sesión'),
       ),

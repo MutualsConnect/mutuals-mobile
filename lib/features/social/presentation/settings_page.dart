@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/location/location_service.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/error_banner.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../interactions/data/interaction_repository.dart';
 import '../data/profile_repository.dart';
 
 /// Preferencias, dispositivos y eliminación de la cuenta.
@@ -39,7 +43,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
         ref.invalidate(preferencesProvider);
         await ref.read(preferencesProvider.future);
+        if (location == true) await _shareLocationOnce();
       });
+
+  /// Al activar la ubicación enviamos la posición actual para detectar
+  /// mutuals cerca. Si falla (sin permiso o sin GPS) la preferencia queda
+  /// activada igualmente y se informa del motivo.
+  Future<void> _shareLocationOnce() async {
+    try {
+      final here = await ref.read(locationServiceProvider).current();
+      await ref
+          .read(interactionRepositoryProvider)
+          .updateLocation(latitude: here.latitude, longitude: here.longitude);
+    } on LocationException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    }
+  }
 
   Future<void> _removeDevice(Device device) => _run(() async {
     await _repo.removeDevice(device.id);
@@ -130,6 +149,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ],
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.block_rounded),
+            title: const Text('Usuarios bloqueados'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/blocked'),
           ),
           const _Title('Mis dispositivos'),
           devices.when(
